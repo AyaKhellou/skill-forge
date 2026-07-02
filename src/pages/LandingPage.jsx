@@ -1,12 +1,10 @@
-import LandingPageHeader from "../components/LandingPageHeader"
 import Button from "../components/Button"
+import { Link } from "react-router-dom"
 
 export default function LandingPage(){
     return(
-        <>
-        <LandingPageHeader />
         <section 
-        className="flex flex-col items-center justify-center text-center gap-6 h-[calc(100vh-5rem)] ">
+        className="flex flex-col items-center justify-center text-center gap-6 h-[calc(100vh-5rem)] p-section">
             <h1 
             className="font-archivo text-text text-6xl leading-18 font-bold">
                 Forge Your Skills,
@@ -17,10 +15,13 @@ export default function LandingPage(){
                 <br/> moves you forward. No more wasted effort — just measurable growth.
             </p>
             <div className="buttons flex items-center gap-4">
-                <Button primary={true}>Start Forging</Button>
-                <Button primary={false}>Sign in</Button>
+                <Link to="signup">
+                    <Button primary={true}>Start Forging</Button>
+                </Link>
+                <Link to="login">
+                    <Button primary={false}>Sign in</Button>
+                </Link>
             </div>
         </section>
-        </>
     )
 }

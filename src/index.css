@@ -6,13 +6,17 @@
     --color-primary: #FF637E;
     --color-accent: #E9A825;
     --color-background: #FAFAF8;
-    --color-text: #2D2D2D;
-    /* --color-charcoal: #2D2D2D; */
+    --color-text: #1F2937;
     --color-detail: #6B7280;
+    --text-normal: 1.15rem;
+    --spacing-section: 2rem;
 }
 body{
     @apply bg-background ;
 }
 .description{
     @apply text-detail text-xl leading-10;
+}
+h2{
+    @apply text-2xl font-bold mb-4 font-figtree text-text;
 }
