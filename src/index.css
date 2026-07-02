@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme{
+    --font-archivo: 'Archivo', sans-serif;
+    --font-figtree: 'Figtree', sans-serif;
+    --color-primary: #FF637E;
+    --color-accent: #E9A825;
+    --color-background: #FAFAF8;
+    --color-text: #2D2D2D;
+    /* --color-charcoal: #2D2D2D; */
+    --color-detail: #6B7280;
+}
+body{
+    @apply bg-background ;
+}
+.description{
+    @apply text-detail text-xl leading-10;
+}
