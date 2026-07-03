@@ -1,7 +1,7 @@
 import FormGroup from "../components/FormGroup"
 import Button from "../components/Button"
 import googleIcon from "../assets/icons8-google-96.png"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { auth } from "../firebase-config"
 import { createUserWithEmailAndPassword } from "firebase/auth"
@@ -11,10 +11,22 @@ export default function SignUp(){
     const [userName, setUserName] = useState("");
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
+    const navigate = useNavigate();
 
-    function submitForm(e){
+    function createUser(e){
         e.preventDefault();
         console.log("Name: ",userName, "Email: ", userEmail, "Password: ", userPassword);
+        
+        createUserWithEmailAndPassword(auth, userEmail, userPassword)
+        .then((userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+            console.log("User created successfully: ", user);
+            // navigate("/dashboard");
+        })
+        .catch((error) => {
+            console.error("Error creating user: ", error);
+        });
     }
 
 
@@ -28,7 +40,11 @@ export default function SignUp(){
                 <FormGroup label="Name" type="text" name="userName" id="user-name" value={userName} onChange={(e) => setUserName(e.target.value)} />
                 <FormGroup label="Email" type="email" name="userEmail" id="user-email" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} />
                 <FormGroup label="Password" type="password" name="userPassword" id="user-password" value={userPassword} onChange={(e) => setUserPassword(e.target.value)} />
-                <Button classes="w-full" primary={true} onClick={submitForm}>Create Account</Button>  
+                <Button 
+                classes="w-full" 
+                primary={true} 
+                onClick={createUser}
+                >Create Account</Button>  
                 <span className="text-detail">or</span>
                 <Button classes="w-full flex items-center justify-center gap-2" type="button" primary={false}>
                     <img src={googleIcon} alt="Google Icon" className="w-7 h-7" />

@@ -1,16 +1,9 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { Outlet, Navigate, useNavigate } from "react-router-dom";
+import { useAuthContext } from "../authContext"
+
+
 export default function Authrequired() {
-    const user = true;
+    const { user } = useAuthContext();
 
-    const navigate = useNavigate();
-
-    if (!user) {
-        useEffect(() => {
-            navigate("/signup");
-        },[user])
-    }
-    if (user) {
-    return  <Outlet />
-    }
+    return user ? <Outlet/> : <Navigate to="/signup" replace/>
 }

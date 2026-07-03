@@ -1,7 +1,13 @@
-import { Outlet } from "react-router-dom"
+import { Outlet, Navigate } from "react-router-dom"
 import LandingPageHeader from "../components/LandingPageHeader"
+import { useAuthContext } from "../authContext"
 
 export default function LandingLayout(){
+    const { user } = useAuthContext();
+    
+    if(user){
+        return <Navigate to="/dashboard" replace/>
+    }
     return(
         <>
             <div className="absolute -z-10 top-10 left-10 w-80 h-80 rounded-full bg-[#FF5D73]/20 blur-[120px]" />
