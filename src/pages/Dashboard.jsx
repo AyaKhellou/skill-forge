@@ -1,9 +1,14 @@
 import { auth } from "../firebase-config"
 import { signOut } from "firebase/auth"
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../authContext"
 
 
 export default function Dashboard(){
+    const { user } = useAuthContext();
+    console.log(user);
+    
+
     const navigate = useNavigate();
     function logout(){
         signOut(auth)
