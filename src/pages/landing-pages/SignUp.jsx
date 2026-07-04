@@ -1,10 +1,13 @@
-import FormGroup from "../components/FormGroup"
-import Button from "../components/Button"
-import googleIcon from "../assets/icons8-google-96.png"
+import FormGroup from "../../components/FormGroup"
+import Button from "../../components/Button"
+import googleIcon from "../../assets/icons8-google-96.png"
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { auth } from "../firebase-config"
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { auth } from "../../firebase-config"
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { signInGoogle } from "../../firebase/functions"
+import ErrorMessage from "../../components/ErrorMessage"
+import { updateProfile } from "firebase/auth";
 
 
 export default function SignUp(){
@@ -13,6 +16,7 @@ export default function SignUp(){
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
     const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState(null);
 
     function createUser(e){
         e.preventDefault();
@@ -20,36 +24,20 @@ export default function SignUp(){
         .then((userCredential) => {
             // Signed in 
             const user = userCredential.user;
-            console.log("User created successfully: ", user);
             // navigate("/dashboard");
+            // navigate("/start");
+            updateProfile(auth.currentUser, {
+                displayName: userName,
+            }).then(() => {
+              // Profile updated!
+              // ...
+            }).catch((error) => {
+              // An error occurred
+              // ...
+            });
         })
         .catch((error) => {
-            console.error("Error creating user: ", error);
-        });
-    }
-
-    function signInGoogle(e){
-        e.preventDefault();
-        const provider = new GoogleAuthProvider();
-        
-        signInWithPopup(auth, provider)
-        .then((result) => {
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          const credential = GoogleAuthProvider.credentialFromResult(result);
-          const token = credential.accessToken;
-          // The signed-in user info.
-          const user = result.user;
-          // IdP data available using getAdditionalUserInfo(result)
-          // ...
-        }).catch((error) => {
-          // Handle Errors here.
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // The email of the user's account used.
-          const email = error.customData.email;
-          // The AuthCredential type that was used.
-          const credential = GoogleAuthProvider.credentialFromError(error);
-          // ...
+            setErrorMessage(error.code.slice(error.code.indexOf("/") + 1));
         });
     }
 
@@ -63,6 +51,7 @@ export default function SignUp(){
                 <FormGroup label="Name" type="text" name="userName" id="user-name" value={userName} onChange={(e) => setUserName(e.target.value)} />
                 <FormGroup label="Email" type="email" name="userEmail" id="user-email" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} />
                 <FormGroup label="Password" type="password" name="userPassword" id="user-password" value={userPassword} onChange={(e) => setUserPassword(e.target.value)} />
+                {errorMessage && <ErrorMessage message={errorMessage} />}
                 <Button 
                 classes="w-full" 
                 primary={true} 

@@ -8,8 +8,9 @@
     --color-background: #FAFAF8;
     --color-text: #1F2937;
     --color-detail: #6B7280;
+    --color-card-background: #F4F4F0;
     --text-normal: 1.15rem;
-    --spacing-section: 2rem;
+    --spacing-section: 1.5rem;
 }
 body{
     @apply bg-background ;
@@ -19,4 +20,10 @@ body{
 }
 h2{
     @apply text-2xl font-bold mb-4 font-figtree text-text;
+}
+.text-error{
+    @apply text-red-500 text-sm mt-2 self-start;
+}
+nav a{
+    @apply bg-card-background p-4 border border-transparent rounded text-base font-semibold hover:bg-[#dbdbd3] transition-colors duration-300 ease-linear ;
 }

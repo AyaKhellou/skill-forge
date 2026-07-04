@@ -1,44 +1,31 @@
-import FormGroup from "../components/FormGroup"
-import Button from "../components/Button"
-import googleIcon from "../assets/icons8-google-96.png"
+import FormGroup from "../../components/FormGroup"
+import Button from "../../components/Button"
+import googleIcon from "../../assets/icons8-google-96.png"
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { auth } from "../firebase-config"
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth"
-
+import { auth } from "../../firebase-config"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { signInGoogle } from "../../firebase/functions"
+import ErrorMessage from "../../components/ErrorMessage"
 
 export default function LogIn(){
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
     const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState(null);
 
     function loginUser(e){
         e.preventDefault();
         signInWithEmailAndPassword(auth, userEmail, userPassword)
         .then((userCredential) => {
             const user = userCredential.user;
-            navigate("/dashboard");
+            // navigate("/dashboard");
+            // navigate("/start");
         })
         .catch((error) => {
-            console.error("Error signing in: ", error);
+            setErrorMessage(error.code.slice(error.code.indexOf("/") + 1));
         });
     }
-    function signInGoogle(e){
-            e.preventDefault();
-            const provider = new GoogleAuthProvider();
-            
-            signInWithPopup(auth, provider)
-            .then((result) => {
-                const credential = GoogleAuthProvider.credentialFromResult(result);
-                const token = credential.accessToken;
-                const user = result.user;
-            }).catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                const email = error.customData.email;
-                const credential = GoogleAuthProvider.credentialFromError(error);
-            });
-        }
 
     return(
         <section className="flex flex-row items-center justify-center p-section">
@@ -46,6 +33,7 @@ export default function LogIn(){
                 <h2>Sign In</h2>
                 <FormGroup label="Email" type="email" name="userEmail" id="user-email" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} />
                 <FormGroup label="Password" type="password" name="userPassword" id="user-password" value={userPassword} onChange={(e) => setUserPassword(e.target.value)} />
+                {errorMessage && <ErrorMessage message={errorMessage} />}
                 <Button classes="w-full" primary={true} onClick={loginUser}>
                     Sign In
                 </Button>
