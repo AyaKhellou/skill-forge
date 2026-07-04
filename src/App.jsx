@@ -17,7 +17,7 @@ export default function App() {
           <Route path="login" element={<LogIn/>}/>
           <Route path="signup" element={<SignUp/>}/>
         </Route>
-
+        
         <Route element={<Authrequired/>}>
           <Route path="dashboard" element={<Dashboard/>} />
         </Route>
