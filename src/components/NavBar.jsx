@@ -2,9 +2,10 @@ import Logo from "./Logo"
 import Button from "./Button"
 import { NavLink } from "react-router-dom"
 import { useAuthContext } from "../authContext";
+import { logout } from "../firebase/firestore"
 
 export default function NavBar(){
-    const { user } = useAuthContext();
+    const { user, loading } = useAuthContext();
 
     const activeStyles = "nav-link border border-primary!" ;
 
@@ -12,23 +13,23 @@ export default function NavBar(){
         <aside className="flex flex-col bg-background justify-stretch border-r border-detail h-screen w-[20%] pt-section px-4">
             <Logo />
             <nav className="w-full flex flex-col gap-2 mt-6">
-                <NavLink 
-                to="/dashboard"
+                <NavLink end
+                to="/user"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Dashboard</NavLink>
-                <NavLink to="/learningpaths"
+                <NavLink to="learningpaths"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Learning Paths</NavLink>
-                <NavLink to="/skills"
+                <NavLink to="skills"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Skills</NavLink>
-                <NavLink to="/projects"
+                <NavLink to="projects"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Projects</NavLink>
-                <NavLink to="/studysessions"
+                <NavLink to="studysessions"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Study Sessions</NavLink>
-                <NavLink to="/achievements"
+                <NavLink to="achievements"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Achievements</NavLink>
             </nav>
@@ -36,8 +37,12 @@ export default function NavBar(){
                 <div 
                 className="rounded-[50%] w-10 h-10 flex items-center justify-center bg-accent"
                 >{"Aya Khellou"[0]}</div>
-                <p className="">{user.displayName}</p>
+                <p className="">
+                    {loading ? "---" : user.displayName}
+                </p>
+                <a className="text-accent font-bold font-figtree cursor-pointer" onClick={logout} >Log Out</a>
             </div>
         </aside>
     )
 }
+// children, onClick , primary , classes

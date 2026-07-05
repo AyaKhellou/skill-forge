@@ -21,9 +21,38 @@ body{
 h2{
     @apply text-2xl font-bold mb-4 font-figtree text-text;
 }
+p{
+    @apply font-figtree;
+}
+h1,h2,h3{
+    @apply font-archivo;
+}
 .text-error{
     @apply text-red-500 text-sm mt-2 self-start;
 }
 nav a{
-    @apply bg-card-background p-4 border border-transparent rounded text-base font-semibold hover:bg-[#dbdbd3] transition-colors duration-300 ease-linear ;
+    @apply bg-card-background font-figtree p-4 border border-transparent rounded text-base font-semibold hover:bg-[#dbdbd3] transition-colors duration-300 ease-linear ;
+}
+.detail{
+    @apply text-detail font-light tracking-wider;
+}
+/* Loader style */
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 60px;
+  aspect-ratio: 2;
+  --_g: no-repeat radial-gradient(circle closest-side,#000 90%,#0000);
+  background: 
+    var(--_g) 0%   50%,
+    var(--_g) 50%  50%,
+    var(--_g) 100% 50%;
+  background-size: calc(100%/3) 50%;
+  animation: l3 1s infinite linear;
+}
+@keyframes l3 {
+    20%{background-position:0%   0%, 50%  50%,100%  50%}
+    40%{background-position:0% 100%, 50%   0%,100%  50%}
+    60%{background-position:0%  50%, 50% 100%,100%   0%}
+    80%{background-position:0%  50%, 50%  50%,100% 100%}
 }

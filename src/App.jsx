@@ -14,7 +14,6 @@ import LogIn from "./pages/landing-pages/LogIn"
 import SignUp from "./pages/landing-pages/SignUp"
 import LandingLayout from "./layouts/LandingLayout"
 import AuthContextProvider from "./authContext"
-import StartPage from "./pages/startPage"
 
 export default function App() {
   return (
@@ -26,8 +25,8 @@ export default function App() {
           <Route path="signup" element={<SignUp/>}/>
         </Route>
         
-        <Route element={<Authrequired/>}>
-          <Route path="dashboard" element={<Dashboard/>} />
+        <Route path="user" element={<Authrequired/>}>
+          <Route index element={<Dashboard/>}/>
           <Route path="learningpaths" element={<LearningPaths/>} />
           <Route path="skills" element={<Skills/>} />
           <Route path="projects" element={<Projects/>} />

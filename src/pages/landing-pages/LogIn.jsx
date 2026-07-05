@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { auth } from "../../firebase-config"
 import { signInWithEmailAndPassword } from "firebase/auth"
-import { signInGoogle } from "../../firebase/functions"
+import { signInGoogle } from "../../firebase/signInGoogle"
 import ErrorMessage from "../../components/ErrorMessage"
 
 export default function LogIn(){

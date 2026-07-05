@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { auth } from "../../firebase-config"
 import { createUserWithEmailAndPassword } from "firebase/auth"
-import { signInGoogle } from "../../firebase/functions"
+import { signInGoogle } from "../../firebase/signInGoogle"
 import ErrorMessage from "../../components/ErrorMessage"
 import { updateProfile } from "firebase/auth";
 
@@ -22,18 +22,11 @@ export default function SignUp(){
         e.preventDefault();
         createUserWithEmailAndPassword(auth, userEmail, userPassword)
         .then((userCredential) => {
-            // Signed in 
             const user = userCredential.user;
-            // navigate("/dashboard");
-            // navigate("/start");
             updateProfile(auth.currentUser, {
                 displayName: userName,
             }).then(() => {
-              // Profile updated!
-              // ...
             }).catch((error) => {
-              // An error occurred
-              // ...
             });
         })
         .catch((error) => {
