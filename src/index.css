@@ -9,6 +9,7 @@
     --color-text: #1F2937;
     --color-detail: #6B7280;
     --color-card-background: #F4F4F0;
+    --color-border-color: #BFBFBF;
     --text-normal: 1.15rem;
     --spacing-section: 1.5rem;
 }
@@ -19,19 +20,19 @@ body{
     @apply text-detail text-xl leading-10;
 }
 h2{
-    @apply text-2xl font-bold mb-4 font-figtree text-text;
+    @apply text-3xl font-bold mb-4 font-figtree text-text;
 }
 p{
     @apply font-figtree;
 }
-h1,h2,h3{
+h1,h2{
     @apply font-archivo;
 }
 .text-error{
     @apply text-red-500 text-sm mt-2 self-start;
 }
 nav a{
-    @apply bg-card-background font-figtree p-4 border border-transparent rounded text-base font-semibold hover:bg-[#dbdbd3] transition-colors duration-300 ease-linear ;
+    @apply bg-card-background font-figtree p-4 border border-transparent rounded text-base font-semibold hover:border-border-color transition-colors duration-300 ease-linear ;
 }
 .detail{
     @apply text-detail font-light tracking-wider;

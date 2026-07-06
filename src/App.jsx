@@ -4,7 +4,7 @@ import LandingPage from "./pages/landing-pages/LandingPage"
 import Authrequired from "./layouts/Authrequired"
 
 import Dashboard from "./pages/profile-pages/Dashboard"
-import LearningPaths from "./pages/profile-pages/LearningPaths"
+import Goals from "./pages/profile-pages/Goals"
 import Skills from "./pages/profile-pages/Skills"
 import Projects from "./pages/profile-pages/Projects"
 import StudySessions from "./pages/profile-pages/StudySessions"
@@ -27,7 +27,7 @@ export default function App() {
         
         <Route path="user" element={<Authrequired/>}>
           <Route index element={<Dashboard/>}/>
-          <Route path="learningpaths" element={<LearningPaths/>} />
+          <Route path="goals" element={<Goals/>} />
           <Route path="skills" element={<Skills/>} />
           <Route path="projects" element={<Projects/>} />
           <Route path="studysessions" element={<StudySessions/>} />

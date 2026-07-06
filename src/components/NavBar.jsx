@@ -10,16 +10,16 @@ export default function NavBar(){
     const activeStyles = "nav-link border border-primary!" ;
 
     return(
-        <aside className="flex flex-col bg-background justify-stretch border-r border-detail h-screen w-[20%] pt-section px-4">
+        <aside className="flex flex-col bg-background justify-stretch border-r border-border-color h-screen w-[20%] pt-section px-4">
             <Logo />
             <nav className="w-full flex flex-col gap-2 mt-6">
                 <NavLink end
                 to="/user"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Dashboard</NavLink>
-                <NavLink to="learningpaths"
+                <NavLink to="goals"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
-                >Learning Paths</NavLink>
+                >Goals</NavLink>
                 <NavLink to="skills"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Skills</NavLink>
