@@ -1,5 +1,7 @@
 export default function Projects(){
     return(
-        <h2>Projects goes here</h2>
+        <section className="page">
+            <h2>Projects goes here</h2>
+        </section>
     )
 }

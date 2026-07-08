@@ -37,6 +37,9 @@ nav a{
 .detail{
     @apply text-detail font-light tracking-wider;
 }
+.page{
+    @apply flex-1 h-screen overflow-y-auto bg-background p-section;
+}
 /* Loader style */
 
 /* HTML: <div class="loader"></div> */

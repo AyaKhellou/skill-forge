@@ -31,7 +31,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <section className="flex-1 h-screen overflow-y-auto bg-background p-section">
+    <section className="page">
       <div className="mx-auto flex max-w-6xl flex-col gap-6">
         <div className="rounded-[2rem] border border-[#e8dfcf] bg-[#fffdf8] p-6 shadow-sm sm:p-8">
           <p className="detail text-xs uppercase tracking-[0.3em]">Learning dashboard</p>

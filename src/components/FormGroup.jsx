@@ -1,6 +1,6 @@
 export default function FormGroup({ label, type, name, id, value, onChange }) {
     return (
-        <div className="form-group font-figtree flex flex-col items-left gap-2 w-full">
+        <div className="font-figtree flex flex-col items-left gap-2 w-full">
             <label 
             className="font-semibold text-detail"
             htmlFor={id}

@@ -1,5 +1,7 @@
 export default function StudySkills(){
     return(
-        <h2>Study sessions goes here</h2>
+        <section className="page">
+            <h2>Study sessions goes here</h2>
+        </section>
     )
 }
