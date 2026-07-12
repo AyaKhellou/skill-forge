@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.3.2",
     "firebase": "^12.15.0",
     "lucide-react": "^1.23.0",
+    "nanoid": "^5.1.16",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1",

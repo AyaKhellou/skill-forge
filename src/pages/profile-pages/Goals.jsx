@@ -1,34 +1,34 @@
 import Button from "../../components/Button"
 import GoalCard from "../../components/GoalCard"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import FormGroup from "../../components/FormGroup";
+import { nanoid } from "nanoid";
 
 
 export default function Goals(){
     const [popUp, setPopUp] = useState(false);
     const [title, setTitle] = useState("");
 
-    let skills = [
-        {name:"Chords",status:false, goal:"Learn the guitar"},
-        {name:"Notes",status:true, goal:"Learn the guitar"},
-        {name:"Rythm",status:true, goal:"Learn the guitar"},
-        {name:"css",status:true, goal:"Learn web dev"},
-        {name:"html",status:true, goal:"Learn web dev"},
-        {name:"js",status:true, goal:"Learn web dev"}
-    ]
 
     const [goals,setGoals] = useState([
     {   
-        id:1,
+        id:nanoid(),
         goalName:"Learn the guitar",
         progress:"20%",
-        skills:skills.filter(skill=> skill.goal === "Learn the guitar")
+        skills: [
+            {id:nanoid(), name:"Chords",status:false},
+            {id:nanoid(), name:"Notes",status:true},
+            {id:nanoid(), name:"Rythm",status:true},
+        ]
     },
     { 
-        id:2,
+        id:nanoid(),
         goalName:"Learn web dev",
         progress:"80%",
-        skills:skills.filter(skill=> skill.goal === "Learn web dev")
+        skills:[
+            {id:nanoid(), name:"css",status:true},
+            {id:nanoid(), name:"html",status:true},
+            {id:nanoid(), name:"js",status:true}]
     }
 ])
 
@@ -48,7 +48,7 @@ export default function Goals(){
         setPopUp(false)
         console.log("saved")
         setGoals(prev=> [...prev,{
-            id:5,
+            id:nanoid(),
             goalName:title,
             progress: "0%",
             skills:[]
@@ -56,19 +56,53 @@ export default function Goals(){
         setTitle("")
     }
 
+
+function addNewSkill(newSkill,goalId){
+        setGoals(prev => 
+            prev.map(goal=>
+                goal.id === goalId ?
+                    {...goal,skills:[...goal.skills, newSkill]}
+                :
+                    goal
+                
+        )
+        )
+}
+function toggleCheck(goalId,skillId){
+    setGoals(prev => 
+            prev.map(goal=>
+                goal.id === goalId ?
+                    {...goal,skills:goal.skills.map(skill=>
+                        skill.id === skillId ?
+                        {...skill, status: !skill.status}
+                        :
+                        skill
+                    )}
+                :
+                    goal
+            )
+        )
+}
+
+console.log(goals)
+
     return(
         <section className="page relative">
             <h2>Current Goals</h2>
-            <div className="goals flex gap-5">
+            <div className="goals flex flex-wrap gap-5">
             {
-                goals.map((goal)=>{
+                goals.map((goal,index)=>{
                     return (
                         <GoalCard
                         key={goal.id}
+                        goalId={goal.id}
                         goalName={goal.goalName} 
                         skills={goal.skills} 
-                        progress={goal.progress} 
-                        color={pastelColors[goal.id].color}/>
+                        progress={goal.progress}
+                        color={pastelColors[index].color}
+                        addNewSkill={addNewSkill}
+                        toggleCheck={toggleCheck}
+                        />
                     )
                 })
             }
