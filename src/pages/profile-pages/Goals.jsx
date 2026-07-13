@@ -9,51 +9,41 @@ export default function Goals(){
     const [popUp, setPopUp] = useState(false);
     const [title, setTitle] = useState("");
 
-
     const [goals,setGoals] = useState([
     {   
         id:nanoid(),
         goalName:"Learn the guitar",
-        progress:"20%",
         skills: [
             {id:nanoid(), name:"Chords",status:false},
-            {id:nanoid(), name:"Notes",status:true},
-            {id:nanoid(), name:"Rythm",status:true},
+            {id:nanoid(), name:"Notes",status:false},
+            {id:nanoid(), name:"Rythm",status:false},
         ]
     },
     { 
         id:nanoid(),
         goalName:"Learn web dev",
-        progress:"80%",
         skills:[
-            {id:nanoid(), name:"css",status:true},
-            {id:nanoid(), name:"html",status:true},
-            {id:nanoid(), name:"js",status:true}]
+            {id:nanoid(), name:"css",status:false},
+            {id:nanoid(), name:"html",status:false},
+            {id:nanoid(), name:"js",status:false}]
     }
 ])
-
-    const pastelColors = [
-        { name: "blush", color: "#fbebec" },
-        { name: "peach", color: "#fcd3a7" },
-        { name: "lilac", color: "#e7d4f9" },
-        { name: "sage", color: "#dbecd7" },
-        { name: "lemon", color: "#fdf0aa" },
-        { name: "sky", color: "#dee7f6" },
-    ]
 
     function addNewGoal(){
         setPopUp(true)
     }
     function saveGoal(){
+        if(title.trim() === ""){
+            alert("Please enter a skill")
+        }else{
         setPopUp(false)
-        console.log("saved")
         setGoals(prev=> [...prev,{
             id:nanoid(),
             goalName:title,
-            progress: "0%",
             skills:[]
         }])
         setTitle("")
+    }
     }
 
 
@@ -70,21 +60,40 @@ function addNewSkill(newSkill,goalId){
 }
 function toggleCheck(goalId,skillId){
     setGoals(prev => 
-            prev.map(goal=>
-                goal.id === goalId ?
-                    {...goal,skills:goal.skills.map(skill=>
-                        skill.id === skillId ?
-                        {...skill, status: !skill.status}
-                        :
-                        skill
-                    )}
-                :
-                    goal
-            )
+        prev.map(goal=>
+            goal.id === goalId ?
+                {...goal,skills:goal.skills.map(skill=>
+                    skill.id === skillId ?
+                    {...skill, status: !skill.status}
+                    :
+                    skill
+                )}
+            :
+                goal
         )
+    )
 }
 
-console.log(goals)
+function editSkill(goalId,skillId,newSkillName){
+    setGoals(prev => 
+        prev.map(goal=>
+            goal.id === goalId ?
+                {...goal, skills: goal.skills.map(skill=>
+                    skill.id === skillId ? 
+                    {...skill, name:newSkillName} :
+                    skill
+                )} : goal
+        )
+    )
+}
+
+function deleteSkill(goalId,skillId){
+    setGoals(prev => prev.map(goal=>
+        goal.id === goalId ?
+        {...goal, skills:goal.skills.filter(skill=> skill.id !== skillId)} :
+        goal
+    ))
+}
 
     return(
         <section className="page relative">
@@ -98,25 +107,17 @@ console.log(goals)
                         goalId={goal.id}
                         goalName={goal.goalName} 
                         skills={goal.skills} 
-                        progress={goal.progress}
-                        color={pastelColors[index].color}
                         addNewSkill={addNewSkill}
                         toggleCheck={toggleCheck}
+                        editSkill={editSkill}
+                        deleteSkill={deleteSkill}
                         />
                     )
                 })
             }
-            </div>
-
-            <Button 
-            onClick={addNewGoal} 
-            primary={true} 
-            classes="fixed bottom-section right-section"
-            disabled={!popUp}
-            >Add new Goal</Button>
-
             {popUp &&
-            <form className="bg-background border border-primary w-[90%] h-32 absolute top-[50%] left-section">
+            <form 
+            className="rounded p-section min-w-80 flex flex-col bg-sage">
                 <FormGroup 
                 label="Goal's Title" 
                 type="text" 
@@ -125,12 +126,19 @@ console.log(goals)
                 value={title}
                 onChange={e=> setTitle(e.target.value)}/>
                 <Button
+                classes="self-end mt-4"
                 onClick={saveGoal} 
                 primary={false}
-                disabled={!popUp}
                 >Save Goal</Button>
             </form>}
+            </div>
 
+            <Button 
+            onClick={addNewGoal} 
+            primary={true} 
+            disabled={popUp}
+            classes={`fixed bottom-section right-section ${popUp && "cursor-not-allowed! bg-gray-200! text-gray-400! hover-none! border-transparent!"}`}
+            >Add new Goal</Button>
         </section>
     )
 }

@@ -6,7 +6,10 @@ import { nanoid } from "nanoid"
 
 
 
-export default function GoalCard({goalName, skills, color, addNewSkill, goalId,goal,toggleCheck}){
+export default function GoalCard({
+    goalName, skills, addNewSkill, goalId, toggleCheck, editSkill, deleteSkill
+}){
+
     const [newSkill, setNewSkill] = useState("")
 
     const progress  = 
@@ -17,7 +20,7 @@ export default function GoalCard({goalName, skills, color, addNewSkill, goalId,g
     
     function assignSkill(){
         if(newSkill.trim() === ""){
-            throw new Error("write something!")
+            alert("Please enter a skill")
         }else{
             addNewSkill({id:nanoid(), name:newSkill , status:false},goalId)
             setNewSkill("")
@@ -25,17 +28,21 @@ export default function GoalCard({goalName, skills, color, addNewSkill, goalId,g
     }
 
     return(
-            <div className={`rounded p-section min-w-80`}
-            style={{ backgroundColor: color }}>
+            <div className={`rounded p-section min-w-80 bg-lemon`}>
                 <h3 className="card-title font-figtree text-xl font-semibold text-text">{goalName}</h3>
                 <ProgressBar progress={progress}/>
                 <div className="skills">
                     {skills.map((skill,index)=>{
                         return <SkillCard 
-                        key={index} 
+                        key={skill.id} 
                         status={skill.status} 
                         name={skill.name}
-                        toggleCheck={()=>toggleCheck(goalId,skill.id)}/>
+                        goal={goalName}
+                        goalId={goalId}
+                        id={skill.id}
+                        toggleCheck={()=>toggleCheck(goalId,skill.id)}
+                        deleteSkill={()=>deleteSkill(goalId,skill.id)}
+                        editSkill={editSkill}/>
                     })}
                 </div>
                 <div className="flex items-center">

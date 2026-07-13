@@ -12,7 +12,15 @@
     --color-border-color: #BFBFBF;
     --text-normal: 1.15rem;
     --spacing-section: 1.5rem;
+    --color-blush: #fbebec;
+    --color-peach : #fcd3a7;
+    --color-lilac : #e7d4f9;
+    --color-sage : #dbecd7;
+    --color-lemon : #fdf0aa;
+    --color-sky : #dee7f6;
 }
+
+
 body{
     @apply bg-background ;
 }
@@ -40,6 +48,7 @@ nav a{
 .page{
     @apply flex-1 h-screen overflow-y-auto bg-background p-section;
 }
+
 /* Loader style */
 
 /* HTML: <div class="loader"></div> */
