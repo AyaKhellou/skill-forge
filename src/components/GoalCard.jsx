@@ -4,7 +4,7 @@ import { Plus,Pen } from "lucide-react"
 import { useState, useEffect } from "react"
 import { nanoid } from "nanoid"
 import { Link } from "react-router-dom"
-import { createSkill,getUserskills,updateGoal } from "../firebase/firestore"
+import { createSkill,getUserskills } from "../firebase/firestore"
 
 
 
@@ -16,7 +16,6 @@ export default function GoalCard({
 
     const [newSkill, setNewSkill] = useState("")
     const [skills,setSkills] = useState(null)
-    const [editMode, setEditMode] = useState(false)
 
     useEffect(()=>{
         if(!userId) return;
@@ -50,28 +49,12 @@ export default function GoalCard({
         }
     }
 
-    // function changeTitle(){
-    //     updateGoal(userId, goalId, {name})
-    // }
 
     return(
             <div className={`rounded p-section min-w-80 bg-lemon`}>
-                {/* {
-                    editMode?
-                    <input/>
-                    : */}
-                    <div className="title flex justify-between">
-                    <Link to={`${goalName}`}>
-                        <h3 className="card-title font-figtree text-xl font-semibold text-text">{goalName}</h3>
-                    </Link>
-                    <button 
-                    type="button"
-                    // onClick={changeTitle}
-                    >
-                        <Pen width={20}/>
-                    </button>
-                </div>
-                {/* } */}
+                <Link to={`${goalId}`}>
+                    <h3 className="card-title font-figtree text-xl font-semibold text-text">{goalName}</h3>
+                </Link>
                 <ProgressBar progress={progress}/>
                 <div className="skills">
                     {skills?.map((skill)=>{

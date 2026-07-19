@@ -22,6 +22,7 @@ export default function Goals(){
             .then(goals => setGoals(goals))
         }
     },[user,goals])
+    
 
     function addNewGoal(){
         setPopUp(true)

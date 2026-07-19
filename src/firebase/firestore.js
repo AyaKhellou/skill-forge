@@ -1,5 +1,5 @@
 // Add a second document with a generated ID.
-import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc} from "firebase/firestore"; 
+import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc,getDoc} from "firebase/firestore"; 
 import { db, auth} from "../firebase-config";
 import { signOut } from "firebase/auth"
 
@@ -59,6 +59,19 @@ export async function getUserGoals(id) {
     }
 }
 
+//read user goal
+
+export async function getUserGoal(id,goalId) {
+
+    const docRef = doc(db,"users", id, "goals",goalId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        return docSnap.data();
+    } else {
+        console.log("No such document!");
+    }
+}
 
 // read user skills
 export async function getUserskills(id,goalId) {
