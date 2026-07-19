@@ -1,5 +1,5 @@
-import { Routes, Route } from "react-router-dom"
 import './index.css'
+import { Routes, Route } from "react-router-dom"
 import LandingPage from "./pages/landing-pages/LandingPage"
 import Authrequired from "./layouts/Authrequired"
 
@@ -9,6 +9,7 @@ import Skills from "./pages/profile-pages/Skills"
 import Projects from "./pages/profile-pages/Projects"
 import StudySessions from "./pages/profile-pages/StudySessions"
 import Achievements from "./pages/profile-pages/Achievements"
+import Goal from "./pages/profile-pages/Goal"
 
 import LogIn from "./pages/landing-pages/LogIn"
 import SignUp from "./pages/landing-pages/SignUp"
@@ -32,6 +33,8 @@ export default function App() {
           <Route path="projects" element={<Projects/>} />
           <Route path="studysessions" element={<StudySessions/>} />
           <Route path="achievements" element={<Achievements/>} />
+          {/* kkkk */}
+          <Route path="goals/:goal" element={<Goal/>}/>
         </Route>
       </Routes>
     </AuthContextProvider>

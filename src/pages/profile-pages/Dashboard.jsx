@@ -1,10 +1,15 @@
 import { useAuthContext } from "../../authContext";
 import Button from "../../components/Button";
+import { createUserData } from "../../firebase/firestore";
 
 export default function Dashboard() {
   const dateNow = new Date();
   const currentHour = dateNow.getHours();
   const { user } = useAuthContext();
+
+  console.log("this is id: " + user.uid);
+  
+
 
   const displayName = user?.displayName?.split(" ")[0] || "there";
 
@@ -29,6 +34,7 @@ export default function Dashboard() {
     { title: "UI design systems", progress: "64%" },
     { title: "JavaScript practice", progress: "91%" },
   ];
+  
 
   return (
     <section className="page">

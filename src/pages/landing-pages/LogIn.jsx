@@ -19,8 +19,6 @@ export default function LogIn(){
         signInWithEmailAndPassword(auth, userEmail, userPassword)
         .then((userCredential) => {
             const user = userCredential.user;
-            // navigate("/dashboard");
-            // navigate("/start");
         })
         .catch((error) => {
             setErrorMessage(error.code.slice(error.code.indexOf("/") + 1));

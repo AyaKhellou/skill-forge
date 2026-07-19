@@ -3,31 +3,25 @@ import GoalCard from "../../components/GoalCard"
 import { useState, useEffect } from "react"
 import FormGroup from "../../components/FormGroup";
 import { nanoid } from "nanoid";
+import { createGoal, getUserGoals } from "../../firebase/firestore"
+import { useAuthContext } from "../../authContext";
+
 
 
 export default function Goals(){
+    const { user } = useAuthContext();
     const [popUp, setPopUp] = useState(false);
     const [title, setTitle] = useState("");
+    const [goals,setGoals] = useState(null);
 
-    const [goals,setGoals] = useState([
-    {   
-        id:nanoid(),
-        goalName:"Learn the guitar",
-        skills: [
-            {id:nanoid(), name:"Chords",status:false},
-            {id:nanoid(), name:"Notes",status:false},
-            {id:nanoid(), name:"Rythm",status:false},
-        ]
-    },
-    { 
-        id:nanoid(),
-        goalName:"Learn web dev",
-        skills:[
-            {id:nanoid(), name:"css",status:false},
-            {id:nanoid(), name:"html",status:false},
-            {id:nanoid(), name:"js",status:false}]
-    }
-])
+
+    useEffect(()=>{
+        if(!user) return;
+        if(user){
+            getUserGoals(user.uid)
+            .then(goals => setGoals(goals))
+        }
+    },[user,goals])
 
     function addNewGoal(){
         setPopUp(true)
@@ -37,80 +31,34 @@ export default function Goals(){
             alert("Please enter a skill")
         }else{
         setPopUp(false)
-        setGoals(prev=> [...prev,{
-            id:nanoid(),
-            goalName:title,
-            skills:[]
-        }])
+
+        if (!user) return;
+        if(user){
+            console.log(user.uid);
+            const goalId = nanoid();
+            createGoal(user.uid,{
+                id:goalId,
+                goalName:title
+            },goalId)
+        }
         setTitle("")
     }
     }
 
-
-function addNewSkill(newSkill,goalId){
-        setGoals(prev => 
-            prev.map(goal=>
-                goal.id === goalId ?
-                    {...goal,skills:[...goal.skills, newSkill]}
-                :
-                    goal
-                
-        )
-        )
-}
-function toggleCheck(goalId,skillId){
-    setGoals(prev => 
-        prev.map(goal=>
-            goal.id === goalId ?
-                {...goal,skills:goal.skills.map(skill=>
-                    skill.id === skillId ?
-                    {...skill, status: !skill.status}
-                    :
-                    skill
-                )}
-            :
-                goal
-        )
-    )
-}
-
-function editSkill(goalId,skillId,newSkillName){
-    setGoals(prev => 
-        prev.map(goal=>
-            goal.id === goalId ?
-                {...goal, skills: goal.skills.map(skill=>
-                    skill.id === skillId ? 
-                    {...skill, name:newSkillName} :
-                    skill
-                )} : goal
-        )
-    )
-}
-
-function deleteSkill(goalId,skillId){
-    setGoals(prev => prev.map(goal=>
-        goal.id === goalId ?
-        {...goal, skills:goal.skills.filter(skill=> skill.id !== skillId)} :
-        goal
-    ))
-}
 
     return(
         <section className="page relative">
             <h2>Current Goals</h2>
             <div className="goals flex flex-wrap gap-5">
             {
-                goals.map((goal,index)=>{
+                goals?.map((goal)=>{
                     return (
                         <GoalCard
                         key={goal.id}
                         goalId={goal.id}
                         goalName={goal.goalName} 
-                        skills={goal.skills} 
-                        addNewSkill={addNewSkill}
-                        toggleCheck={toggleCheck}
-                        editSkill={editSkill}
-                        deleteSkill={deleteSkill}
+                        skills={goal.skills}
+                        userId={user.uid}
                         />
                     )
                 })

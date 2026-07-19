@@ -8,6 +8,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth"
 import { signInGoogle } from "../../firebase/signInGoogle"
 import ErrorMessage from "../../components/ErrorMessage"
 import { updateProfile } from "firebase/auth";
+import { createUserData } from "../../firebase/firestore"
 
 
 export default function SignUp(){
@@ -27,6 +28,12 @@ export default function SignUp(){
                 displayName: userName,
             }).then(() => {
             }).catch((error) => {
+            });
+            createUserData(user.uid,{
+                name : user.displayName,
+                email: user.email,
+                pfp: user.photoURL,
+                createdAt: user.reloadUserInfo.createdAt
             });
         })
         .catch((error) => {
