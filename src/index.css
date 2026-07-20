@@ -18,6 +18,7 @@
     --color-sage : #dbecd7;
     --color-lemon : #fdf0aa;
     --color-sky : #dee7f6;
+    --color-red: #c53d4b;
 }
 
 
@@ -28,7 +29,7 @@ body{
     @apply text-detail text-xl leading-10;
 }
 h2{
-    @apply text-3xl font-bold mb-4 font-figtree text-text;
+    @apply text-3xl font-bold mb-4 text-text;
 }
 p{
     @apply font-figtree;
@@ -37,7 +38,7 @@ h1,h2{
     @apply font-archivo;
 }
 .text-error{
-    @apply text-red-500 text-sm mt-2 self-start;
+    @apply text-red text-sm mt-2 self-start;
 }
 nav a{
     @apply bg-card-background font-figtree p-4 border border-transparent rounded text-base font-semibold hover:border-border-color transition-colors duration-300 ease-linear ;
@@ -48,7 +49,9 @@ nav a{
 .page{
     @apply flex-1 h-screen overflow-y-auto bg-background p-section;
 }
-
+.skill:not(:last-child){
+    @apply relative mb-6.75 after:bg-accent after:w-1 after:h-7 after:absolute after:-bottom-7 after:right-1/2;
+}
 /* Loader style */
 
 /* HTML: <div class="loader"></div> */

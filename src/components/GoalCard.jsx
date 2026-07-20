@@ -51,7 +51,7 @@ export default function GoalCard({
 
 
     return(
-            <div className={`rounded p-section min-w-80 bg-lemon`}>
+            <div className={`rounded p-section w-96 min-w-80 bg-card-background border border-accent shadow`}>
                 <Link to={`${goalId}`}>
                     <h3 className="card-title font-figtree text-xl font-semibold text-text">{goalName}</h3>
                 </Link>
@@ -77,7 +77,7 @@ export default function GoalCard({
                     <button 
                     type="button"
                     onClick={assignSkill} 
-                    className="cursor-pointer text-border-color hover:text-detail">
+                    className="cursor-pointer text-border-color hover:text-primary">
                         <Plus width={20}/>
                     </button>
                 </div>

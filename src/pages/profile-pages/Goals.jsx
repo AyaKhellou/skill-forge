@@ -49,7 +49,12 @@ export default function Goals(){
 
     return(
         <section className="page relative">
-            <h2>Current Goals</h2>
+            <div className="bg-card-background shadow rounded p-section mb-3">
+                <h2>Current Goals</h2>
+                    <span className="detail font-bold!">
+                        finished {goals?.filter(goal=>goal.status === true).length}/{goals?.length} goals
+                    </span>
+            </div>
             <div className="goals flex flex-wrap gap-5">
             {
                 goals?.map((goal)=>{
