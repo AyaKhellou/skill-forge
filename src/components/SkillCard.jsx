@@ -9,7 +9,6 @@ export default function SkillCard({
     const[editSkillMode, SetEditSkilMode] = useState(false)
     const [editedSkill, setEditedSkill] = useState(name)
 
-
     function saveEdit(){
         updateSkill(userId, goalId, skillId, {name:editedSkill})
         SetEditSkilMode(false)

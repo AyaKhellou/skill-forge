@@ -5,8 +5,6 @@ import Authrequired from "./layouts/Authrequired"
 
 import Dashboard from "./pages/profile-pages/Dashboard"
 import Goals from "./pages/profile-pages/Goals"
-import Skills from "./pages/profile-pages/Skills"
-import Projects from "./pages/profile-pages/Projects"
 import StudySessions from "./pages/profile-pages/StudySessions"
 import Achievements from "./pages/profile-pages/Achievements"
 import Goal from "./pages/profile-pages/Goal"
@@ -15,6 +13,13 @@ import LogIn from "./pages/landing-pages/LogIn"
 import SignUp from "./pages/landing-pages/SignUp"
 import LandingLayout from "./layouts/LandingLayout"
 import AuthContextProvider from "./authContext"
+
+import Skill from './pages/profile-pages/Skill'
+import Milestones from './pages/profile-pages/skillPages/Milestones'
+import Notes from './pages/profile-pages/skillPages/Notes'
+import Resourses from './pages/profile-pages/skillPages/Resourses'
+import Projects from './pages/profile-pages/skillPages/Projects'
+// import StudySessions from './pages/profile-pages/skillPages/StudySessions'
 
 export default function App() {
   return (
@@ -29,12 +34,19 @@ export default function App() {
         <Route path="user" element={<Authrequired/>}>
           <Route index element={<Dashboard/>}/>
           <Route path="goals" element={<Goals/>} />
-          <Route path="skills" element={<Skills/>} />
-          <Route path="projects" element={<Projects/>} />
+          <Route path="goals/:goal" element={<Goal/>}/>
+
+          <Route path="goals/:goal/skills/:skill" element={<Skill/>}>
+            <Route index element={<Milestones/>} />
+            <Route path='notes' element={<Notes/>}/>
+            <Route path='resourses' element={<Resourses/>}/>
+            <Route path='projects' element={<Projects/>}/>
+            {/* <Route path='study-sessions'/> */}
+          </Route>
+
           <Route path="studysessions" element={<StudySessions/>} />
           <Route path="achievements" element={<Achievements/>} />
-          {/* kkkk */}
-          <Route path="goals/:goal" element={<Goal/>}/>
+          
         </Route>
       </Routes>
     </AuthContextProvider>

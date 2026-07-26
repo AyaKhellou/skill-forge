@@ -50,10 +50,18 @@ export default function Goals(){
     return(
         <section className="page relative">
             <div className="bg-card-background shadow rounded p-section mb-3">
-                <h2>Current Goals</h2>
-                    <span className="detail font-bold!">
-                        finished {goals?.filter(goal=>goal.status === true).length}/{goals?.length} goals
-                    </span>
+                <h2>Goals</h2>
+                    <div className="flex justify-between items-center">
+                        <span className="detail">
+                            finished {goals?.filter(goal=>goal.status === true).length}/{goals?.length} goals
+                        </span>
+                        <Button 
+                        onClick={addNewGoal} 
+                        primary={true} 
+                        disabled={popUp}
+                        classes={`${popUp && "cursor-not-allowed! bg-gray-200! text-gray-400! hover-none! border-transparent!"}`}
+                        >+ Add new Goal</Button>
+                    </div>
             </div>
             <div className="goals flex flex-wrap gap-5">
             {
@@ -86,13 +94,6 @@ export default function Goals(){
                 >Save Goal</Button>
             </form>}
             </div>
-
-            <Button 
-            onClick={addNewGoal} 
-            primary={true} 
-            disabled={popUp}
-            classes={`fixed bottom-section right-section ${popUp && "cursor-not-allowed! bg-gray-200! text-gray-400! hover-none! border-transparent!"}`}
-            >Add new Goal</Button>
         </section>
     )
 }

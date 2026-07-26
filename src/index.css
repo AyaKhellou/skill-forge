@@ -31,7 +31,7 @@ body{
 h2{
     @apply text-3xl font-bold mb-4 text-text;
 }
-p{
+p,span,li,a{
     @apply font-figtree;
 }
 h1,h2{
@@ -44,7 +44,7 @@ nav a{
     @apply bg-card-background font-figtree p-4 border border-transparent rounded text-base font-semibold hover:border-border-color transition-colors duration-300 ease-linear ;
 }
 .detail{
-    @apply text-detail font-light tracking-wider;
+    @apply text-detail font-semibold tracking-wider text-sm;
 }
 .page{
     @apply flex-1 h-screen overflow-y-auto bg-background p-section;

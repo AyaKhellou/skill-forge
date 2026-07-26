@@ -20,12 +20,6 @@ export default function NavBar(){
                 <NavLink to="goals"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Goals</NavLink>
-                <NavLink to="skills"
-                className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
-                >Skills</NavLink>
-                <NavLink to="projects"
-                className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
-                >Projects</NavLink>
                 <NavLink to="studysessions"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Study Sessions</NavLink>

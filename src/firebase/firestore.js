@@ -88,6 +88,17 @@ export async function getUserskills(id,goalId) {
     }
 }
 
+// read specific skill
+export async function getSkill(id,goalId,skillId) {
+    try{
+    const docSnap  = await getDoc(doc(db,"users", id, "goals",goalId,"skills",skillId));
+    return docSnap.data()
+    }catch(err){
+        console.log(err);
+    }
+}
+
+//update skill
 export async function updateSkill(userId, goalId, skillId, dataToUpdate){
 
 const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId);
