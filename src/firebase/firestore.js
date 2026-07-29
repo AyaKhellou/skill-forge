@@ -1,5 +1,5 @@
 // Add a second document with a generated ID.
-import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc,getDoc} from "firebase/firestore"; 
+import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc,getDoc, onSnapshot } from "firebase/firestore"; 
 import { db, auth} from "../firebase-config";
 import { signOut } from "firebase/auth"
 
@@ -83,16 +83,6 @@ export async function getUserskills(id,goalId) {
     ...doc.data()
 }));
 
-    }catch(err){
-        console.log(err);
-    }
-}
-
-// read specific skill
-export async function getSkill(id,goalId,skillId) {
-    try{
-    const docSnap  = await getDoc(doc(db,"users", id, "goals",goalId,"skills",skillId));
-    return docSnap.data()
     }catch(err){
         console.log(err);
     }

@@ -35,7 +35,6 @@ export default function Goals(){
 
         if (!user) return;
         if(user){
-            console.log(user.uid);
             const goalId = nanoid();
             createGoal(user.uid,{
                 id:goalId,

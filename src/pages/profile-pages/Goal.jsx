@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import ProgressBar from "../../components/ProgressBar"
 import Loader from "../../components/Loader";
 import Button from "../../components/Button"
-import { ArrowLeft, Check, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Note from "../../components/Note";
 import DetailedSkillCard from "../../components/DetailedSkillCard";
 

@@ -2,32 +2,33 @@ import { Link, NavLink, Outlet, useParams } from "react-router-dom"
 import { useState, useEffect } from "react";
 import Loader from "../../components/Loader";
 import { ArrowLeft } from "lucide-react";
-import { getSkill } from "../../firebase/firestore"
 import { useAuthContext } from "../../authContext";
 import ProgressBar from "../../components/ProgressBar";
+
+import { doc,onSnapshot } from "firebase/firestore";
+import { db } from "../../firebase-config";
+
 
 export default function Skill(){
     const { user } = useAuthContext();
     const[loading, setLoading] = useState(true)
     const[skillData, setSkillData] = useState(null)
-
     const { goal, skill } = useParams()
-    console.log("goal: ",goal);
-    console.log("skill: ",skill);
-    console.log("user: ",user);
+
+    const userId = user.uid;
 
 
     useEffect(()=>{
         async function fetchData() {
-            const skillData = await getSkill(user.uid,goal,skill)
-            setSkillData(skillData)
+            onSnapshot(doc(db,"users", userId, "goals",goal,"skills",skill), (doc) => {
+                setSkillData(doc.data())
+            })
             setLoading(false)
         }
         fetchData();
-    },[user,goal,skill])
-
-    console.log(skillData);
+    },[userId,goal,skill])
     
+    console.log(skillData);
     
     if(loading){
         return (
@@ -46,10 +47,10 @@ export default function Skill(){
                     <ArrowLeft width={17}/>
                     <p>go back</p>
                 </Link>
-                <h2>{skillData.name}</h2>
+                <h2>{skillData?.name}</h2>
                 <span 
-                    className={`text-sm rounded-full p-1 ${skillData.status ? "bg-sage" : "bg-peach"}`}
-                >{skillData.status ? "completed" : "pending"}
+                    className={`text-sm rounded-full p-1 ${skillData?.status ? "bg-sage" : "bg-peach"}`}
+                >{skillData?.status ? "completed" : "pending"}
                 </span>
                 <ProgressBar/>
             </div>
@@ -60,7 +61,7 @@ export default function Skill(){
                 <NavLink to="projects" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Projects</NavLink>
                 {/* <NavLink to="study-sessions">Study Sessions</NavLink> */}
             </div>
-            <Outlet/>
+            <Outlet context={ {goal, skill, userId} }/>
         </section>
     )
     }
