@@ -4,7 +4,6 @@ import Loader from "../../components/Loader";
 import { ArrowLeft } from "lucide-react";
 import { useAuthContext } from "../../authContext";
 import ProgressBar from "../../components/ProgressBar";
-
 import { doc,onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase-config";
 
@@ -14,6 +13,7 @@ export default function Skill(){
     const[loading, setLoading] = useState(true)
     const[skillData, setSkillData] = useState(null)
     const { goal, skill } = useParams()
+
 
     const userId = user.uid;
 
@@ -27,8 +27,28 @@ export default function Skill(){
         }
         fetchData();
     },[userId,goal,skill])
+
+    // useEffect(() => {
+    //     const milestonesRef = collection(db, "users", userId, "goals", goal, "skills", skill, "milestones");
+    //     onSnapshot(
+    //         milestonesRef, (snapshot) => {
+    //         const data = snapshot.docs.map((doc) => ({
+    //             id: doc.id,
+    //             ...doc.data(),
+    //         }));
+        
+    //         setMilestones(data);
+    //         setLoading(false);
+    //     },
+    //     (error) => {
+    //         console.error("Error fetching milestones: ", error);
+    //         setLoading(false);
+    //     }
+    //     );
+    // }, [userId, goal, skill]);
     
-    console.log(skillData);
+    // const completedMilestones = milestones?.filter(milestone=> milestone.status === true)
+
     
     if(loading){
         return (

@@ -6,12 +6,13 @@ import { nanoid } from "nanoid";
 import { collection,doc,onSnapshot, setDoc } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 
+
 export default function Milestones(){
     const [updateMode, setUpdateMode] = useState(false)
     const [milestones, setMilestones] = useState(null)
-    const [newMilstone, setNewMilestone] = useState("")
+    const [newMilestone, setNewMilestone] = useState("")
     const [loading, setLoading] = useState(true)
-    
+
     const { skill, goal, userId } = useOutletContext();
     const now = new Date();
     const id = nanoid();
@@ -35,6 +36,7 @@ export default function Milestones(){
         );
     }, [userId, goal, skill]);
 
+
     function addMilestone(){
         setUpdateMode(true)
     }
@@ -45,7 +47,7 @@ export default function Milestones(){
             try{
                 await setDoc(docRef, {
                     id:id,
-                    name: newMilstone,
+                    name: newMilestone,
                     status:false,
                     startedAt: now.toLocaleDateString() 
                 });
@@ -58,13 +60,11 @@ export default function Milestones(){
         setUpdateMode(false)
         setNewMilestone("")
     }
-    console.log(milestones);
-    
 
     return(
         <div className="bg-card-background shadow rounded p-section flex flex-col">
             <div className="milestones shadow mb-4">
-                {milestones.length !== 0 ?
+                {milestones?.length !== 0 && milestones ?
                 milestones.map((milestone)=>{
                     return <Milestone 
                     key={milestone.id}
@@ -84,7 +84,7 @@ export default function Milestones(){
                 <input 
                 className="bg-background border-b border-accent flex items-center gap-3 p-5"
                 onChange={(e)=> setNewMilestone(e.target.value)}
-                value={newMilstone}
+                value={newMilestone}
                 />
             }
             {updateMode ?
