@@ -1,23 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Button from "../../../components/Button";
 import { useOutletContext } from "react-router-dom";
 import { nanoid } from "nanoid";
-import { collection,doc,onSnapshot, setDoc } from "firebase/firestore";
+import { collection,doc,onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 import Note from "../../../components/Note";
+import Loader from "../../../components/Loader";
 
 export default function Notes(){
-    const [updateMode, setUpdateMode] = useState(false)
+    const [updateMode, setUpdateMode] = useState(null)
     const [notes, setNotes] = useState(null)
     const [noteTitle, setNoteTitle] = useState("")
     const [noteContent, setNoteContent] = useState("")
     const [loading, setLoading] = useState(true)
     
+    const contentInputRef = useRef(null);
+
     const { skill, goal, userId } = useOutletContext();
     const now = new Date();
     const id = nanoid();
 
-    //get data from firestore
 
     useEffect(() => {
         const notesRef = collection(db, "users", userId, "goals", goal, "skills", skill, "notes");
@@ -56,11 +58,44 @@ export default function Notes(){
         createNote()
         setNoteTitle("")
         setNoteContent("")
-        console.log("note title: ", noteTitle)
-        console.log("note content: ", noteContent)
+    }
+    
+    useEffect(()=>{
+        if(updateMode){
+            setNoteTitle(updateMode.title)
+            setNoteContent(updateMode.content)
+            console.log("update mode is true");
+            contentInputRef.current?.focus();
+        }
+
+    }, [updateMode])
+
+    function updateNote(){
+        const docRef = doc(db, "users", userId, "goals",goal,"skills",skill,"notes",updateMode.noteId);
+
+        async function editNote(){
+            try{
+                await updateDoc(docRef, {
+                    title: noteTitle,
+                    content: noteContent
+                });
+            }catch(err){
+                console.log(err);
+            }
+        }
+        editNote()
+        setNoteTitle("")
+        setNoteContent("")
+        setUpdateMode(null)
     }
 
-
+    if(loading){
+        return(
+            <div className="bg-card-background shadow rounded p-section flex flex-col">
+                <Loader/>
+            </div>
+        )
+    }
     return(
         <>
         <div className="bg-card-background shadow rounded p-section flex flex-col">
@@ -74,6 +109,7 @@ export default function Notes(){
                 onChange={(e)=> setNoteTitle(e.target.value)}
                 />
                 <textarea 
+                ref={contentInputRef}
                 className="w-full h-52 p-4 outline-none font-figtree"
                 name="note-body"
                 placeholder="Note Content"
@@ -81,22 +117,29 @@ export default function Notes(){
                 onChange={(e)=> setNoteContent(e.target.value)}
                 />
             </div>
+                {updateMode?
                 <Button 
                 classes="self-end"
-                onClick={saveNote}>save note</Button>
+                onClick={updateNote}>Update Note</Button>
+                :
+                <Button 
+                classes="self-end"
+                onClick={saveNote}>save note</Button>}
         </div>
         <div className="bg-card-background shadow rounded p-section flex gap-2">
-
                 {notes?.length !== 0 && notes ?
                 notes.map((note)=>{
                     return <Note 
+                    key={note.id}
+                    noteId={note.id}
+                    skillId={skill}
+                    goalId={goal}
+                    userId={userId}
                     title={note.title} 
                     timeCreated={note.createdAt} 
-                    content={note.content.split('\n').map((line, i) => <p key={i}>{line}</p>)} />
-                    // <div className="note w-full bg-background border-b border-accent gap-3 mb-3 p-4" key={note.id}>
-                    //     <h3 className="font-figtree font-semibold text-xl">{note?.title}</h3> 
-                    //     <p className="font-figtree text-detail">{note?.content.split('\n').slice(0,1)}</p>
-                    // </div>
+                    content={note.content}
+                    setUpdateMode={setUpdateMode}
+                    />
                 })
                 :
                 <p>no notes!</p>
@@ -104,5 +147,4 @@ export default function Notes(){
             </div>
         </>
     )
-    
 }

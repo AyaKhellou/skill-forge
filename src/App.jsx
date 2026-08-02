@@ -17,7 +17,7 @@ import AuthContextProvider from "./authContext"
 import Skill from './pages/profile-pages/Skill'
 import Milestones from './pages/profile-pages/skillPages/Milestones'
 import Notes from './pages/profile-pages/skillPages/Notes'
-import Resourses from './pages/profile-pages/skillPages/Resourses'
+import Resources from './pages/profile-pages/skillPages/Resources'
 import Projects from './pages/profile-pages/skillPages/Projects'
 // import StudySessions from './pages/profile-pages/skillPages/StudySessions'
 
@@ -39,7 +39,7 @@ export default function App() {
           <Route path="goals/:goal/skills/:skill" element={<Skill/>}>
             <Route index element={<Milestones/>} />
             <Route path='notes' element={<Notes/>}/>
-            <Route path='resourses' element={<Resourses/>}/>
+            <Route path='resources' element={<Resources/>}/>
             <Route path='projects' element={<Projects/>}/>
             {/* <Route path='study-sessions'/> */}
           </Route>

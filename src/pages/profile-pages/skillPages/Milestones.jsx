@@ -5,6 +5,7 @@ import { useOutletContext } from "react-router-dom";
 import { nanoid } from "nanoid";
 import { collection,doc,onSnapshot, setDoc } from "firebase/firestore";
 import { db } from "../../../firebase-config";
+import Loader from "../../../components/Loader";
 
 
 export default function Milestones(){
@@ -60,7 +61,14 @@ export default function Milestones(){
         setUpdateMode(false)
         setNewMilestone("")
     }
-
+    
+    if(loading){
+        return(
+            <div className="bg-card-background shadow rounded p-section flex flex-col">
+                <Loader/>
+            </div>
+        )
+    }
     return(
         <div className="bg-card-background shadow rounded p-section flex flex-col">
             <div className="milestones shadow mb-4">

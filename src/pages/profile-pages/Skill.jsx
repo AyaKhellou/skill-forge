@@ -27,28 +27,6 @@ export default function Skill(){
         }
         fetchData();
     },[userId,goal,skill])
-
-    // useEffect(() => {
-    //     const milestonesRef = collection(db, "users", userId, "goals", goal, "skills", skill, "milestones");
-    //     onSnapshot(
-    //         milestonesRef, (snapshot) => {
-    //         const data = snapshot.docs.map((doc) => ({
-    //             id: doc.id,
-    //             ...doc.data(),
-    //         }));
-        
-    //         setMilestones(data);
-    //         setLoading(false);
-    //     },
-    //     (error) => {
-    //         console.error("Error fetching milestones: ", error);
-    //         setLoading(false);
-    //     }
-    //     );
-    // }, [userId, goal, skill]);
-    
-    // const completedMilestones = milestones?.filter(milestone=> milestone.status === true)
-
     
     if(loading){
         return (
@@ -77,7 +55,7 @@ export default function Skill(){
             <div className="nav-bar bg-card-background shadow p-section flex justify-around">
                 <NavLink to="" end className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Milestones</NavLink>
                 <NavLink to="notes" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Notes</NavLink>
-                <NavLink to="resourses" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Resources</NavLink>
+                <NavLink to="resources" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Resources</NavLink>
                 <NavLink to="projects" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Projects</NavLink>
                 {/* <NavLink to="study-sessions">Study Sessions</NavLink> */}
             </div>
