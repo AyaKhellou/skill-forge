@@ -31,8 +31,8 @@ body{
 h2{
     @apply text-3xl font-bold mb-4 text-text;
 }
-p,span,li,a{
-    @apply font-figtree;
+p,span,li,a,input{
+    @apply font-figtree ;
 }
 h1,h2{
     @apply font-archivo;

@@ -3,7 +3,9 @@ import { doc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase-config";
 
 
-export default function Note({userId, goalId, skillId, noteId, title, timeCreated, content, setUpdateMode}){
+export default function Note({
+    userId, goalId, skillId, noteId, title, timeCreated, content, setUpdateMode
+}){
 
     const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"notes",noteId);
     

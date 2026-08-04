@@ -1,5 +1,4 @@
 import { Link, useParams } from "react-router-dom"
-import { getUserskills, getUserGoal } from "../../firebase/firestore";
 import { useAuthContext } from "../../authContext"
 import { useState, useEffect } from "react";
 import ProgressBar from "../../components/ProgressBar"
@@ -8,16 +7,19 @@ import Button from "../../components/Button"
 import { ArrowLeft } from "lucide-react";
 import Note from "../../components/Note";
 import DetailedSkillCard from "../../components/DetailedSkillCard";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { db } from "../../firebase-config";
 
 export default function Goal(){
     const { goal } = useParams();
     const { user } = useAuthContext();
     const[goalData,setGoalData] = useState(null)
     const [skills, setSkills] = useState(null)
+
+    console.log(user.uid);
+    console.log(goal);
     
-
-    const loading = goalData === null || skills === null;
-
+    
     const progress  =
         skills?.length === 0 ?
         0:
@@ -25,17 +27,45 @@ export default function Goal(){
 
     
     useEffect(()=>{
+        if(!user || !goal) return;
         async function fetchData() {
-            const goalInfo = await getUserGoal(user.uid,goal)
-            setGoalData(goalInfo)
-
-            const skillsInfo = await getUserskills(user?.uid,goalData?.id)
-            setSkills(skillsInfo)
+            //get goal info
+            async function getUserGoal() {
+                const docRef = doc(db,"users", user.uid, "goals",goal);
+                const docSnap = await getDoc(docRef);
+            
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    setGoalData(data)
+                } else {
+                    console.log("No such document!");
+                }
+            }
+            getUserGoal()
+            //get skills for the goal
+            async function getUserskills() {
+                try{
+                const querySnapshot = await getDocs(collection(db,"users", user?.uid, "goals",goal,"skills"));
+            
+                const data = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+                }));
+                setSkills(data)
+                }catch(err){
+                    console.log(err);
+                }
+            }
+            getUserskills()
         }
         fetchData();
-    },[user,goal,goalData?.id])
+    },[user,goal])
+
+    console.log(skills);
+    console.log(goalData);
     
-    
+    const loading = !goalData || !skills;
+
 
     if(loading){
         return (
@@ -44,18 +74,14 @@ export default function Goal(){
             </section>
         )
     }
-
-    if(!loading){
     return (
         <section className="page flex flex-col gap-3">
             <div 
             className="bg-card-background shadow rounded p-section">
-                {/* <div className="flex items-center gap-3"> */}
-                    <Link to=".." relative="path" className="text-blue-500 flex items-center gap-2 my-3">
-                        <ArrowLeft width={17}/>
-                        <p>go back to goals</p>
-                    </Link>
-                {/* </div> */}
+                <Link to=".." relative="path" className="text-blue-500 flex items-center gap-2 my-3">
+                    <ArrowLeft width={17}/>
+                    <p>go back to goals</p>
+                </Link>
                 <h2>{goalData?.goalName}</h2>
                 <ProgressBar progress={progress}/>
                 <div className="details flex justify-between">
@@ -83,17 +109,15 @@ export default function Goal(){
                     add new skill
                 </Button>
             </div>
-            <div className="bg-card-background shadow rounded p-section flex flex-col">
+            {/* <div className="bg-card-background shadow rounded p-section flex flex-col">
                 <h3 className="text-2xl font-bold mb-4 text-text">Notes</h3>
                 <div className="notes">
-                    <Note name="study plan" tags={["html","css"]} timeCreated="21 jun" 
-                    text="stydy html everyday"/>
+                    <Note userId={user?.uid} goalId={goal} skillId={skill.id} noteId={note.id} title={note.title} timeCreated={note.timeCreated} content={note.content} />
                 </div>
                 <Button classes="self-end">
                     add note
                 </Button>
-            </div>
+            </div> */}
         </section>
     )
-    }
 }
