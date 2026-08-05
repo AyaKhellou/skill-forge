@@ -29,7 +29,6 @@ export default function Notes(){
                 id: doc.id,
                 ...doc.data(),
             }));
-        
             setNotes(data);
             setLoading(false);
         },

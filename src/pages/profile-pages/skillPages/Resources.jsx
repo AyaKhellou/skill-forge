@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import Button from "../../../components/Button";
 import { useOutletContext } from "react-router-dom";
 import { nanoid } from "nanoid";
-import { collection,doc,onSnapshot, setDoc } from "firebase/firestore";
+import { collection,doc,onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 import Loader from "../../../components/Loader";
-import { ArrowRight } from "lucide-react";
+import Resource from "../../../components/Resource";
 
 
 export default function Resources(){
-    // const [updateMode, setUpdateMode] = useState(false)
+    const [updateMode, setUpdateMode] = useState(null)
     const [resources, setResources] = useState(null)
-    // const [newMilestone, setNewMilestone] = useState("")
     const [loading, setLoading] = useState(false)
-    const [resourceCategory, setResourceCategory] = useState("")
+    const [resourceCategory, setResourceCategory] = useState("video")
     const [resourceLink, setResourceLink] = useState("")
     const [resourceName, setResourceName] = useState("")
+    const inputRef = useRef(null);
 
     const { skill, goal, userId } = useOutletContext();
     const id = nanoid();
@@ -28,26 +28,14 @@ export default function Resources(){
                 id: doc.id,
                 ...doc.data(),
             }));
-        
             setResources(data);
-            // setLoading(false);
         },
         (error) => {
             console.error("Error fetching resources: ", error);
             setLoading(false);
         }
         );
-        // setResources([
-        //     {id:1, name:"resource 1", link:"https://example.com/resource1", category:"video"},
-        //     {id:2, name:"resource 2", link:"https://example.com/resource2", category:"article"},
-        //     {id:3, name:"resource 3", link:"https://example.com/resource3", category:"tutorial"},
-        // ])
     }, [userId, goal, skill]);
-
-
-    // function addMilestone(){
-    //     setUpdateMode(true)
-    // }
 
     
     function addResource(){
@@ -69,13 +57,39 @@ export default function Resources(){
         setResourceCategory("")
         setResourceLink("")
         setResourceName("")
-        console.log(resourceCategory);
-        console.log(resourceLink);
-        console.log(resourceName);
     }
 
-    // console.log(resources);
-    
+    useEffect(()=>{
+        if(updateMode){
+            setResourceCategory(updateMode.category)
+            setResourceLink(updateMode.link)
+            setResourceName(updateMode.name)
+            console.log("update mode is true");
+            inputRef.current?.focus();
+        }
+    }, [updateMode])
+
+    function updateResource(){
+        const docRef = doc(db, "users", userId, "goals",goal,"skills",skill,"resources",updateMode.resourceId);
+
+        async function editData(){
+            try{
+                await updateDoc(docRef, {
+                    name: resourceName,
+                    link: resourceLink,
+                    category: resourceCategory
+                });
+            }catch(err){
+                console.log(err);
+            }
+        }
+        editData()
+        setResourceName("")
+        setResourceLink("")
+        setResourceCategory("")
+        setUpdateMode(null)
+    }
+
     if(loading){
         return(
             <div className="bg-card-background shadow rounded p-section flex flex-col">
@@ -88,22 +102,17 @@ export default function Resources(){
             <div className="mb-4">
                 {resources?.length !== 0 && resources ?
                 resources.map((resource)=>{
-                    return <div 
-                    key={resource.id}
-                    className="bg-background shadow p-section m-3 rounded flex items-center gap-3">
-                        <span className="bg-peach text-sm text-text px-2 py-1 rounded-full"> {resource.category} </span>
-                        <p>{resource.name}</p>
-                        <a 
-                        href={resource.link} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-primary ml-auto">
-                            <ArrowRight/>
-                        </a>
-                    </div>
+                    return <Resource 
+                    key={resource.id} 
+                    resource={resource}
+                    skillId={skill}
+                    goalId={goal}
+                    userId={userId}
+                    setUpdateMode={setUpdateMode}
+                    />
                 })
                 :
-                <p>new resources!</p>
+                <p>no resources!</p>
                 }
                 <div className="bg-background shadow p-section m-3 rounded flex flex-col  gap-3">
                     <select 
@@ -115,6 +124,7 @@ export default function Resources(){
                         <option value="tutorial">tutorial</option>
                     </select>
                     <input 
+                    ref={inputRef}
                     type="text" 
                     placeholder="resource name" 
                     className="bg-background p-2 border-b border-accent outline-none"
@@ -128,27 +138,16 @@ export default function Resources(){
                     value={resourceLink}
                     onChange={(e)=> setResourceLink(e.target.value)}
                     />
+                    {updateMode ?
+                    <Button 
+                    onClick={updateResource}
+                    classes="self-end">update resource</Button>
+                    :
                     <Button 
                     onClick={addResource}
-                    classes="self-end">add resource</Button>
+                    classes="self-end">add resource</Button>}
                 </div>
             </div>
-            {/* {updateMode &&
-                <input 
-                className="bg-background border-b border-accent flex items-center gap-3 p-5"
-                onChange={(e)=> setNewMilestone(e.target.value)}
-                value={newMilestone}
-                />
-            }
-            {updateMode ?
-                <Button 
-                classes="self-end"
-                onClick={saveMilestone}>save milestone</Button>
-                :
-                <Button 
-                classes="self-end"
-                onClick={addMilestone}>add milestone</Button>
-            } */}
         </div>
     )
 }

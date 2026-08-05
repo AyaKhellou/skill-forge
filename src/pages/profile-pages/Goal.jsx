@@ -5,16 +5,18 @@ import ProgressBar from "../../components/ProgressBar"
 import Loader from "../../components/Loader";
 import Button from "../../components/Button"
 import { ArrowLeft } from "lucide-react";
-import Note from "../../components/Note";
 import DetailedSkillCard from "../../components/DetailedSkillCard";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { collection, doc,onSnapshot,setDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import { nanoid } from "nanoid";
 
 export default function Goal(){
     const { goal } = useParams();
     const { user } = useAuthContext();
     const[goalData,setGoalData] = useState(null)
     const [skills, setSkills] = useState(null)
+    const [newSkillName, setNewSkillName] = useState("")
+    const id = nanoid();
 
     console.log(user.uid);
     console.log(goal);
@@ -25,46 +27,55 @@ export default function Goal(){
         0:
         Math.round((100 * skills?.filter(skill=> skill.status === true).length) / skills?.length)
 
-    
-    useEffect(()=>{
-        if(!user || !goal) return;
-        async function fetchData() {
-            //get goal info
-            async function getUserGoal() {
-                const docRef = doc(db,"users", user.uid, "goals",goal);
-                const docSnap = await getDoc(docRef);
+    useEffect(() => {
             
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    setGoalData(data)
-                } else {
-                    console.log("No such document!");
-                }
-            }
-            getUserGoal()
-            //get skills for the goal
-            async function getUserskills() {
-                try{
-                const querySnapshot = await getDocs(collection(db,"users", user?.uid, "goals",goal,"skills"));
-            
-                const data = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-                }));
-                setSkills(data)
-                }catch(err){
-                    console.log(err);
-                }
-            }
-            getUserskills()
+        const docRef = doc(db,"users", user.uid, "goals",goal);
+        onSnapshot(docRef, (doc)=>{
+            setGoalData(doc.data())
+        }),(error) => {
+            console.error("Error fetching goal data: ", error);
         }
-        fetchData();
-    },[user,goal])
+        
 
-    console.log(skills);
-    console.log(goalData);
-    
+        const skillsRef = collection(db, "users", user.uid, "goals", goal, "skills");
+        onSnapshot(
+            skillsRef, (snapshot) => {
+            const data = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setSkills(data);
+        },
+        (error) => {
+            console.error("Error fetching skills: ", error);
+        }
+        );
+        }, [user, goal]);
+
+
     const loading = !goalData || !skills;
+
+    function addSkill(){
+        if(!newSkillName) return;
+        const newSkill = {
+            id:id,
+            name: newSkillName,
+            status: false,
+        }
+        async function createSkill() {
+            const docRef = doc(db, "users", user.uid, "goals",goal,"skills",id);
+            try{
+                await setDoc(docRef, newSkill);
+                console.log("skill created!!!!!!!");
+                
+            } catch(err){
+                console.log(err);
+                
+            }
+        }
+        createSkill()
+        setNewSkillName("")
+    }
 
 
     if(loading){
@@ -105,19 +116,22 @@ export default function Goal(){
                         status={skill.status}/>
                     )}
                 </div>
-                <Button classes="self-end mt-4">
-                    add new skill
-                </Button>
-            </div>
-            {/* <div className="bg-card-background shadow rounded p-section flex flex-col">
-                <h3 className="text-2xl font-bold mb-4 text-text">Notes</h3>
-                <div className="notes">
-                    <Note userId={user?.uid} goalId={goal} skillId={skill.id} noteId={note.id} title={note.title} timeCreated={note.timeCreated} content={note.content} />
+                <div className="bg-card-background rounded my-2 p-3 shadow flex items-center justify-between gap-4">
+                    <input 
+                    type="text" 
+                    name="skillName" 
+                    placeholder="enter skill name" 
+                    className="outline-none"
+                    value={newSkillName}
+                    onChange={(e) => setNewSkillName(e.target.value)}
+                    />
+                    <Button 
+                    onClick={addSkill}
+                    classes="">
+                        add new skill
+                    </Button>
                 </div>
-                <Button classes="self-end">
-                    add note
-                </Button>
-            </div> */}
+            </div>
         </section>
     )
 }
