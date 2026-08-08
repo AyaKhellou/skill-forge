@@ -32,10 +32,10 @@ h2{
     @apply text-3xl font-bold mb-4 text-text;
 }
 p,span,li,a,input{
-    @apply font-figtree ;
+    @apply font-figtree text-text;
 }
-h1,h2{
-    @apply font-archivo;
+h1,h2,h3{
+    @apply font-archivo text-text;
 }
 .text-error{
     @apply text-red text-sm mt-2 self-start;
@@ -48,6 +48,21 @@ nav a{
 }
 .page{
     @apply flex-1 h-screen overflow-y-auto bg-background p-section;
+}
+.project-card{
+    @apply bg-card-background shadow rounded p-section;
+}
+.project-grid{
+    @apply grid gap-4 lg:grid-cols-[1.6fr_0.9fr];
+}
+.tag{
+    @apply inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold text-text;
+}
+/* .project-link{
+    @apply ;
+} */
+.project-image{
+    @apply h-64 w-full rounded-xl object-cover;
 }
 .skill:not(:last-child){
     @apply relative mb-6.75 after:bg-accent after:w-1 after:h-7 after:absolute after:-bottom-7 after:right-1/2;

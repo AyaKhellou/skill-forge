@@ -18,7 +18,7 @@ import Skill from './pages/profile-pages/Skill'
 import Milestones from './pages/profile-pages/skillPages/Milestones'
 import Notes from './pages/profile-pages/skillPages/Notes'
 import Resources from './pages/profile-pages/skillPages/Resources'
-import Projects from './pages/profile-pages/skillPages/Projects'
+import Project from './pages/profile-pages/Project'
 // import StudySessions from './pages/profile-pages/skillPages/StudySessions'
 
 export default function App() {
@@ -35,12 +35,12 @@ export default function App() {
           <Route index element={<Dashboard/>}/>
           <Route path="goals" element={<Goals/>} />
           <Route path="goals/:goal" element={<Goal/>}/>
+          <Route path='goals/:goal/projects/:project' element={<Project/>}/>
 
           <Route path="goals/:goal/skills/:skill" element={<Skill/>}>
             <Route index element={<Milestones/>} />
             <Route path='notes' element={<Notes/>}/>
             <Route path='resources' element={<Resources/>}/>
-            <Route path='projects' element={<Projects/>}/>
             {/* <Route path='study-sessions'/> */}
           </Route>
 

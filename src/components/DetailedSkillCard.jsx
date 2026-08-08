@@ -12,7 +12,7 @@ export default function DetailedSkillCard({ id, name, status}){
     const[milestones,setMilestones] = useState(null)
 
     return(
-        <div className="bg-card-background skill rounded my-2 p-3 shadow flex items-center gap-4 skill-card">
+        <div className="bg-background skill rounded my-2 p-3 shadow flex items-center gap-4 skill-card">
             <Link to={`skills/${id}`} className="w-full">
                 <div className="flex items-center gap-4">
                     <h4 className="text-xl text-accent font-figtree m-0">

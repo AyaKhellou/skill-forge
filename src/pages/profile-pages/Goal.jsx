@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import ProgressBar from "../../components/ProgressBar"
 import Loader from "../../components/Loader";
 import Button from "../../components/Button"
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import DetailedSkillCard from "../../components/DetailedSkillCard";
 import { collection, doc,onSnapshot,setDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
@@ -17,6 +17,11 @@ export default function Goal(){
     const [skills, setSkills] = useState(null)
     const [newSkillName, setNewSkillName] = useState("")
     const id = nanoid();
+    // Projects states:
+    const [projects, setProjects] = useState(null)
+    const [imagePath, setImagePath] = useState("");
+    const [projectName, setProjectName] = useState("");
+    const [projectDesc, setProjectDesc] = useState("");
 
     console.log(user.uid);
     console.log(goal);
@@ -50,6 +55,23 @@ export default function Goal(){
             console.error("Error fetching skills: ", error);
         }
         );
+
+        const projectsRef = collection(db, "users", user.uid, "goals", goal, "projects");
+        onSnapshot(
+            projectsRef, (snapshot) => {
+            const data = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setProjects(data);
+        },
+        (error) => {
+            console.error("Error fetching projects: ", error);
+        }
+        );
+
+
+
         }, [user, goal]);
 
 
@@ -75,6 +97,31 @@ export default function Goal(){
         }
         createSkill()
         setNewSkillName("")
+    }
+
+    function addNewProject(){
+        if(!imagePath || !projectName || !projectDesc) return;
+
+        const newProject = {
+            id:id,
+            imagePath:imagePath,
+            name: projectName,
+            description:projectDesc
+        }
+        async function createProject() {
+            const docRef = doc(db, "users", user.uid, "goals",goal,"projects",id);
+            try{
+                await setDoc(docRef, newProject);
+                console.log("project created!!!!!!!");
+                
+            } catch(err){
+                console.log(err);
+            }
+        }
+        createProject()
+        setImagePath("")
+        setProjectName("")
+        setProjectDesc("")
     }
 
 
@@ -105,7 +152,7 @@ export default function Goal(){
                     </span>
                 </div>
             </div>
-            <div className="rounded flex flex-col">
+            <div className="rounded flex flex-col bg-card-background shadow p-section">
                 <h3 className="text-2xl font-bold mb-4 text-text">skills</h3>
                 <div className="skills">
                     {skills?.map(skill=>
@@ -116,7 +163,7 @@ export default function Goal(){
                         status={skill.status}/>
                     )}
                 </div>
-                <div className="bg-card-background rounded my-2 p-3 shadow flex items-center justify-between gap-4">
+                <div className="bg-background rounded my-2 p-3 shadow flex items-center justify-between gap-4">
                     <input 
                     type="text" 
                     name="skillName" 
@@ -130,6 +177,62 @@ export default function Goal(){
                     classes="">
                         add new skill
                     </Button>
+                </div>
+            </div>
+            {/* project: */}
+            <div className="rounded flex flex-col bg-card-background shadow p-section">
+                <h3 className="text-2xl font-bold mb-4 text-text">Projects</h3>
+                <div className="projects flex gap-3">
+                    {
+                        projects.map(project =>{
+                            return <div className="project bg-background rounded my-2 p-3 shadow w-1/3">
+                        <div className="image-box w-full">
+                            <img 
+                            className="w-full h-full object-cover" 
+                            src={project.imagePath} />
+                        </div>
+                        <div className="flex flex-col gap-2 mt-2">
+                            <Link to={`projects/${project.id}`} className="text-blue-500 font-bold text-lg">
+                                <h4 className="text-lg font-bold text-text">{project.name}</h4>
+                            </Link>
+                            <span className="text-sm text-detail">{project.description}</span>
+                        </div>
+                    </div>
+                        })
+                    }
+
+                    <div className="project-form bg-background rounded my-2 p-3 shadow w-1/3">
+                        <div className="image-box w-full aspect-square flex flex-col justify-center items-center">
+                            <input 
+                            type="file" 
+                            id="image-upload" 
+                            name="imageUpload" 
+                            accept="image/*"
+                            value={imagePath}
+                            onChange={(e)=> setImagePath(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex flex-col gap-2 mt-2">
+                            <input type="text" name="projectName" id="project-name" 
+                            className="text-lg font-bold text-text outline-none"
+                            placeholder="Enter Project Name"
+                            value={projectName}
+                            onChange={(e)=> setProjectName(e.target.value)} />
+
+                            <input 
+                            type="text" 
+                            name="description" 
+                            id="description" 
+                            placeholder="Write a short desciption"
+                            className="text-sm text-detail outline-none"
+                            value={projectDesc}
+                            onChange={(e)=> setProjectDesc(e.target.value)} />
+
+                            <Button onClick={addNewProject} primary={false} classes="ml-auto p-1!">
+                                <Check/>
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

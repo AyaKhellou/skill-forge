@@ -56,7 +56,7 @@ export default function Skill(){
                 <NavLink to="" end className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Milestones</NavLink>
                 <NavLink to="notes" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Notes</NavLink>
                 <NavLink to="resources" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Resources</NavLink>
-                <NavLink to="projects" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Projects</NavLink>
+                {/* <NavLink to="projects" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Projects</NavLink> */}
                 {/* <NavLink to="study-sessions">Study Sessions</NavLink> */}
             </div>
             <Outlet context={ {goal, skill, userId} }/>
