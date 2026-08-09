@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import ProgressBar from "../../components/ProgressBar"
 import Loader from "../../components/Loader";
 import Button from "../../components/Button"
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, Plus } from "lucide-react";
 import DetailedSkillCard from "../../components/DetailedSkillCard";
 import { collection, doc,onSnapshot,setDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import { nanoid } from "nanoid";
+import ProjectCard from "../../components/ProjectCard";
 
 export default function Goal(){
     const { goal } = useParams();
@@ -19,14 +20,12 @@ export default function Goal(){
     const id = nanoid();
     // Projects states:
     const [projects, setProjects] = useState(null)
-    const [imagePath, setImagePath] = useState("");
+    const [imagePath, setImagePath] = useState(null);
     const [projectName, setProjectName] = useState("");
     const [projectDesc, setProjectDesc] = useState("");
+    const [imagePreview, setImagePreview] = useState(null);
 
-    console.log(user.uid);
-    console.log(goal);
-    
-    
+
     const progress  =
         skills?.length === 0 ?
         0:
@@ -75,7 +74,7 @@ export default function Goal(){
         }, [user, goal]);
 
 
-    const loading = !goalData || !skills;
+    const loading = !goalData || !skills || !projects;
 
     function addSkill(){
         if(!newSkillName) return;
@@ -99,18 +98,61 @@ export default function Goal(){
         setNewSkillName("")
     }
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+    
+        if (file) {
+            setImagePath(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    }
+
+    //----------------------------------------------------------------------
+    // const uploadImage = async (file) => 
+        
+    async function uploadImage(file){
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+    formData.append(
+        "upload_preset",
+        "skillforge_images"
+    );
+    
+    const response = await fetch(
+        `https://api.cloudinary.com/v1_1/mi3zklxx/image/upload`,
+        {
+            method: "POST",
+            body: formData,
+        }
+    );
+    
+    if (!response.ok) {
+        throw new Error("Image upload failed");
+    }
+    
+    const data = await response.json();
+    
+    return data.secure_url;
+};
+    //----------------------------------------------------------------------
+
+
     function addNewProject(){
         if(!imagePath || !projectName || !projectDesc) return;
 
-        const newProject = {
-            id:id,
-            imagePath:imagePath,
-            name: projectName,
-            description:projectDesc
-        }
         async function createProject() {
             const docRef = doc(db, "users", user.uid, "goals",goal,"projects",id);
             try{
+                const imageUrl =  await uploadImage(imagePath)
+                const newProject = {
+                    id:id,
+                    imageUrl:imageUrl,
+                    name: projectName,
+                    description:projectDesc
+                }
+
                 await setDoc(docRef, newProject);
                 console.log("project created!!!!!!!");
                 
@@ -119,11 +161,14 @@ export default function Goal(){
             }
         }
         createProject()
-        setImagePath("")
+        setImagePath(null)
+        setImagePreview(null)
         setProjectName("")
         setProjectDesc("")
     }
 
+    console.log(imagePath);
+    
 
     if(loading){
         return (
@@ -182,35 +227,44 @@ export default function Goal(){
             {/* project: */}
             <div className="rounded flex flex-col bg-card-background shadow p-section">
                 <h3 className="text-2xl font-bold mb-4 text-text">Projects</h3>
-                <div className="projects flex gap-3">
+                <div className="projects flex flex-wrap gap-3">
                     {
-                        projects.map(project =>{
-                            return <div className="project bg-background rounded my-2 p-3 shadow w-1/3">
-                        <div className="image-box w-full">
-                            <img 
-                            className="w-full h-full object-cover" 
-                            src={project.imagePath} />
-                        </div>
-                        <div className="flex flex-col gap-2 mt-2">
-                            <Link to={`projects/${project.id}`} className="text-blue-500 font-bold text-lg">
-                                <h4 className="text-lg font-bold text-text">{project.name}</h4>
-                            </Link>
-                            <span className="text-sm text-detail">{project.description}</span>
-                        </div>
-                    </div>
+                        projects?.map(project =>{
+                            return <ProjectCard 
+                            key={project.id} 
+                            project={project}
+                            userId={user.uid}
+                            goalId={goal}/>
                         })
                     }
 
-                    <div className="project-form bg-background rounded my-2 p-3 shadow w-1/3">
+                    <div className="project-form bg-background rounded my-2 p-3 shadow w-[30%]">
                         <div className="image-box w-full aspect-square flex flex-col justify-center items-center">
                             <input 
                             type="file" 
                             id="image-upload" 
                             name="imageUpload" 
                             accept="image/*"
-                            value={imagePath}
-                            onChange={(e)=> setImagePath(e.target.value)}
+                            className="hidden"
+                            onChange={handleImageChange}
                             />
+                            {imagePreview ? (
+                            <img
+                                src={imagePreview}
+                                alt="Project preview"
+                                className="w-full h-full object-cover aspect-square"
+                            />
+                            ) : (
+                                <label 
+                                htmlFor="image-upload" 
+                                className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg 
+                                    flex items-center justify-center cursor-pointer 
+                                    hover:border-pink-400 transition">
+                                    <span 
+                                    className="text-4xl text-gray-400">+</span>
+                                </label>
+                            )}
+                            
                         </div>
                         <div className="flex flex-col gap-2 mt-2">
                             <input type="text" name="projectName" id="project-name" 
@@ -224,7 +278,7 @@ export default function Goal(){
                             name="description" 
                             id="description" 
                             placeholder="Write a short desciption"
-                            className="text-sm text-detail outline-none"
+                            className="text-sm text-detail outline-none "
                             value={projectDesc}
                             onChange={(e)=> setProjectDesc(e.target.value)} />
 

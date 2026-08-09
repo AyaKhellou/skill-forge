@@ -2,12 +2,30 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import Button from "../../components/Button";
 import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { doc,onSnapshot } from "firebase/firestore";
+import { db } from "../../firebase-config";
+import { useAuthContext } from "../../authContext";
 
 export default function Project() {
+    const [projectData, setProjectData] = useState(null)
+    const { user } = useAuthContext()
     const { goal , project } = useParams();
 
     console.log("goal Id: " , goal);
     console.log("project name: " , project);
+
+    
+    useEffect(()=>{
+        const docRef = doc(db, "users", user.uid , "goals",goal,"projects",project)
+        onSnapshot(docRef, (doc)=>{
+            setProjectData(doc.data())
+        }),(error) => {
+            console.error("Error fetching goal data: ", error);
+        }
+    },[user,project,goal])
+    
+    console.log(projectData);
     
     return (
         <section className="page flex flex-col gap-3">

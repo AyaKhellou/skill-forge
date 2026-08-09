@@ -18,7 +18,7 @@ export default function Resource({ resource, userId, goalId, skillId, setUpdateM
             }
         }
         deleteData()
-        }
+    }
     return(
         <div
         className="bg-background shadow p-section m-3 rounded flex items-center gap-3">
