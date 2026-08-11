@@ -61,9 +61,9 @@ nav a{
 /* .project-link{
     @apply ;
 } */
-.project-image{
-    @apply h-64 w-full rounded-xl object-cover;
-}
+/* .project-image{
+    @apply ;
+} */
 .skill:not(:last-child){
     @apply relative mb-6.75 after:bg-accent after:w-1 after:h-7 after:absolute after:-bottom-7 after:right-1/2;
 }

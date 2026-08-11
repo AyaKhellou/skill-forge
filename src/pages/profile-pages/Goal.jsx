@@ -24,7 +24,9 @@ export default function Goal(){
     const [projectName, setProjectName] = useState("");
     const [projectDesc, setProjectDesc] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
-
+    const currentDate = new Date();
+    console.log(currentDate);
+    
 
     const progress  =
         skills?.length === 0 ?
@@ -106,10 +108,7 @@ export default function Goal(){
             setImagePreview(URL.createObjectURL(file));
         }
     }
-
-    //----------------------------------------------------------------------
-    // const uploadImage = async (file) => 
-        
+    
     async function uploadImage(file){
 
     const formData = new FormData();
@@ -150,7 +149,8 @@ export default function Goal(){
                     id:id,
                     imageUrl:imageUrl,
                     name: projectName,
-                    description:projectDesc
+                    briefDescription:projectDesc,
+                    createdAt:currentDate.toLocaleDateString(),
                 }
 
                 await setDoc(docRef, newProject);

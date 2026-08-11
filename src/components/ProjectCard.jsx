@@ -27,7 +27,7 @@ export default function ProjectCard ({ project, userId, goalId }) {
                 <Link to={`projects/${project.id}`} className="text-blue-500 font-bold text-lg">
                     <h4 className="text-lg font-bold text-text">{project.name}</h4>
                 </Link>
-                <span className="text-sm text-detail">{project.description}</span>
+                <span className="text-sm text-detail">{project.briefDescription}</span>
                 <button className="self-end cursor-pointer" onClick={deleteProject}>
                     <Trash width={17} height={17}/>
                 </button>
