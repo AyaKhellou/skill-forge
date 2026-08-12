@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowUpRight, Check, Pen, Plus } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Check, Pen, Plus, Trash } from "lucide-react";
 import Button from "../../components/Button";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { doc,onSnapshot, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc,onSnapshot, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import { useAuthContext } from "../../authContext";
 import Loader from "../../components/Loader";
@@ -14,7 +14,6 @@ export default function Project() {
     const { user } = useAuthContext()
     const { goal , project } = useParams()
     const [loading, setLoading] = useState(true)
-    const [editTitleMode, setEditTitleMode] = useState(false)
 
     //input states
     const [description, setDescription] = useState("")
@@ -25,7 +24,16 @@ export default function Project() {
     const [linkName, setLinkName] = useState("")
     const [linkUrl, setLinkUrl] = useState("")
     //edit states
+    const [editTitleMode, setEditTitleMode] = useState(false)
     const [projectTitle, setProjectTitle] = useState("")
+    const [editBriefDesMode, setEditBriefDesMode] = useState(false)
+    const [briefDescription ,setBriefDescription] = useState("")
+
+    const [changeImageMode, setChangeImageMode] = useState(false)
+    const [imagePreview, setImagePreview] = useState(null);
+    const [imagePath, setImagePath] = useState(null);
+
+    
 
     const id = nanoid()
     const docRef = doc(db, "users", user.uid , "goals",goal,"projects",project)
@@ -86,6 +94,9 @@ export default function Project() {
         if(projectData?.name !== undefined){
             setProjectTitle(projectData.name)
         }
+        if(projectData?.briefDescription !== undefined){
+            setBriefDescription(projectData.briefDescription)
+        }
     },[projectData])
 
     async function updateSkill(dataToUpdate){
@@ -133,6 +144,22 @@ export default function Project() {
         setLinkUrl("")
     }
 
+    function removeReflection(reflection){
+        updateSkill({ reflections: arrayRemove(reflection) })
+    }
+
+    function removeLesson(lessonLearned){
+        updateSkill({ lessonsLearned: arrayRemove(lessonLearned) })
+    }
+
+    function removeTechSkill(skillItem){
+        updateSkill({ techStack: arrayRemove(skillItem) })
+    }
+
+    function removeLink(linkItem){
+        updateSkill({ links: arrayRemove(linkItem) })
+    }
+
     function saveDescription(){
         updateSkill({description:description})
     }
@@ -142,6 +169,52 @@ export default function Project() {
         setEditTitleMode(false)
     }
 
+    function editBriefDes(){
+        updateSkill({briefDescription:briefDescription})
+        setEditBriefDesMode(false)
+    }
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+    
+        if (file) {
+            setImagePath(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    }
+    async function uploadImage(file){
+
+        const formData = new FormData();
+        
+        formData.append("file", file);
+        formData.append(
+            "upload_preset",
+            "skillforge_images"
+        );
+        
+        const response = await fetch(
+            `https://api.cloudinary.com/v1_1/mi3zklxx/image/upload`,
+            {
+                method: "POST",
+                body: formData,
+            }
+        );
+        
+        if (!response.ok) {
+            throw new Error("Image upload failed");
+        }
+        
+        const data = await response.json();
+        
+        return data.secure_url;
+    };
+    async function changeImage(){
+        const newImageUrl =  await uploadImage(imagePath)
+        console.log(newImageUrl);
+        updateSkill({imageUrl:newImageUrl})
+        setChangeImageMode(false)
+        setImagePreview(null)
+    }
     
     if(loading){
         return (
@@ -154,12 +227,57 @@ export default function Project() {
         <section className="page flex flex-col gap-3">
             <div className="project-card">
                 <div className="image-cont relative">
-                    <img
-                        src={projectData.imageUrl}
-                        alt="project"
-                        className="h-64 w-full rounded-xl object-cover mb-2"
-                    />
-                    <Button primary={false} classes="p-1! text-sm! absolute bottom-3 left-3">Change image</Button>
+                    {
+                        changeImageMode ?
+                        <div className="flex flex-col">
+                            <input 
+                                type="file" 
+                                id="image-upload" 
+                                name="imageUpload" 
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleImageChange}
+                            />
+                            <label 
+                            htmlFor="image-upload" 
+                            className="absolute bg-gray-950/40 w-full h-10/12 rounded-xl flex items-center justify-center">
+                                <Plus className="text-background opacity-100"/>
+                            </label>
+                            {
+                            imagePreview ? 
+                                <img
+                                    src={imagePreview}
+                                    alt="Project preview"
+                                    className="h-64 w-full rounded-xl object-cover mb-2"
+                                />
+                            : 
+                            <img
+                                src={projectData.imageUrl}
+                                alt="Project preview"
+                                className="h-64 w-full rounded-xl object-cover mb-2"
+                            />
+                            }
+                            <Button
+                            classes="cursor-pointer self-end mt-2 p-1!"
+                            onClick={changeImage}>
+                                <Check/>
+                            </Button>
+                        </div>
+                        :
+                        <div>
+                            <img
+                            src={projectData.imageUrl}
+                            alt="project"
+                            className="h-64 w-full rounded-xl object-cover mb-2"
+                            />
+                            <Button 
+                            primary={false} 
+                            classes="p-1! text-sm! absolute bottom-3 left-3"
+                            onClick={()=>setChangeImageMode(true)}
+                            >Change image</Button>
+                        </div>
+                    }
+                    
                 </div>
 
                 <Link to={`/user/goals/${goal}`}  
@@ -208,8 +326,28 @@ export default function Project() {
                             </button>}
                         </div>
 
-                    <div className="detail flex items-center justify-between text-sm">
-                        <p>{projectData.briefDescription}</p>
+                    <div className="detail flex gap-4 items-center justify-between text-sm">
+                        {
+                            editBriefDesMode ?
+                            <div className="flex w-1/2">
+                                <input 
+                                className="border-b border-accent outline-none pb-1 w-full "
+                                type="text" name="brief-desc"
+                                value={briefDescription}
+                                onChange={(e)=>setBriefDescription(e.target.value)}
+                                />
+                                <button 
+                                onClick={editBriefDes}
+                                className="cursor-pointer">
+                                    <Check/>
+                                </button>
+                            </div>
+                            :
+                            <p 
+                            onClick={()=>setEditBriefDesMode(true)}
+                            >{projectData.briefDescription}</p>
+                        }
+            
                         <div className="details flex flex-col gap-2">
                             <span>Created at: {projectData.createdAt}</span>
                             <span>Last updated {updateTime} ago</span>
@@ -220,23 +358,20 @@ export default function Project() {
 
             <div className="project-grid">
                 <div className="flex flex-col gap-4">
-                    <div id="description" className="project-card flex flex-col gap-3">
-                        <h3 className="text-2xl font-semibold">Description</h3>
-                        <div className="mt-3 leading-7 text-detail">
-                        
-                        <textarea
-                        value={description}
-                        onChange={(e)=> setDescription(e.target.value)}
-                        className="w-full h-fit resize-none outline-none"/>
-                        
+                    <div id="description" className="project-card flex flex-col gap-3 rounded-2xl border border-border-color bg-background/80 p-5 shadow-sm">
+                        <h3 className="text-2xl font-semibold text-text">Description</h3>
+                        <div className="mt-1 rounded-xl border border-accent bg-background p-3">
+                            <textarea
+                                value={description}
+                                onChange={(e)=> setDescription(e.target.value)}
+                                className="w-full min-h-32 resize-none bg-transparent text-sm leading-7 text-detail outline-none"
+                                placeholder="Add a project description..."
+                            />
                         </div>
-                        {/* {
-                            editMode ? */}
-                            <Button 
+                        <Button 
                             classes="self-end"
                             disabled={projectData.description !== description ? false : true} 
                             onClick={saveDescription}>save desc</Button>
-                        {/* } */}
                     </div>
 
                     <div id="reflections" className="project-card">
@@ -246,8 +381,16 @@ export default function Project() {
                                 projectData.reflections ?
                                 projectData.reflections.map(reflection=>{
                                     return (
-                                        <div className="rounded-xl border border-accent bg-background p-4">
-                                            <h4 className="font-semibold text-text">{reflection.title}</h4>
+                                        <div className="relative rounded-xl border border-accent bg-background p-4">
+                                            <button
+                                                type="button"
+                                                className="absolute right-3 top-3 cursor-pointer text-detail transition hover:text-red-500"
+                                                onClick={() => removeReflection(reflection)}
+                                                aria-label={`Delete reflection ${reflection.title}`}
+                                            >
+                                                <Trash width={16} height={16} />
+                                            </button>
+                                            <h4 className="font-semibold text-text pr-8">{reflection.title}</h4>
                                             <p className="mt-2 text-sm leading-6 text-detail">{reflection.content}</p>
                                         </div>
                                     )
@@ -289,18 +432,32 @@ export default function Project() {
 
                     <div id="lessons" className="project-card">
                         <h3 className="text-2xl font-semibold">Lessons learned</h3>
-                        <ul className="mt-3 space-y-2">
+                        <div className="mt-4 flex flex-col gap-3">
                             {
-                                projectData.lessonsLearned ?
+                                projectData.lessonsLearned && projectData.lessonsLearned.length > 0 ?
                                 projectData.lessonsLearned.map(lessonLearned=>{
-                                    return <li className="list-inside list-disc mb-2">{lessonLearned.content}</li>
+                                    return (
+                                        <div className="flex flex-row-reverse justify-between rounded-xl border border-accent bg-background p-4">
+                                            <button
+                                                type="button"
+                                                className="cursor-pointer text-detail transition hover:text-red-500"
+                                                onClick={() => removeLesson(lessonLearned)}
+                                                aria-label={`Delete lesson ${lessonLearned.content}`}
+                                            >
+                                                <Trash width={15} height={15} />
+                                            </button>
+                                            <p className="pr-8 text-sm leading-6 text-detail">{lessonLearned.content}</p>
+                                        </div>
+                                    )
                                 }) :
-                                "No lessons added yet!"
+                                <div className="rounded-xl border border-dashed border-accent bg-background p-4 text-sm text-detail">
+                                    No lessons added yet!
+                                </div>
                             }
-                            <div className="bg-background p-3 flex items-center justify-between">
+                            <div className="rounded-xl border border-accent bg-background p-3 flex items-center justify-between gap-3">
                                 <input 
                                 type="text" 
-                                className="outline-none" 
+                                className="w-full outline-none" 
                                 placeholder="new lesson..."
                                 value={lesson}
                                 onChange={(e)=> setLesson(e.target.value)}
@@ -308,11 +465,11 @@ export default function Project() {
                                 <button 
                                 type="button"
                                 onClick={addNewLesson}
-                                className="cursor-pointer">
+                                className="cursor-pointer text-text transition hover:opacity-70">
                                     <Check/>
                                 </button>
                             </div>
-                        </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -324,7 +481,19 @@ export default function Project() {
                             {
                                 projectData.techStack ?
                                 projectData.techStack.map(skill=>{
-                                    return <span className="tag bg-accent">{skill}</span>
+                                    return (
+                                        <span className="tag bg-accent flex items-center gap-2">
+                                            {skill}
+                                            <button
+                                                type="button"
+                                                className="cursor-pointer text-detail transition hover:text-red-500"
+                                                onClick={() => removeTechSkill(skill)}
+                                                aria-label={`Delete skill ${skill}`}
+                                            >
+                                                <Trash width={12} height={12} />
+                                            </button>
+                                        </span>
+                                    )
                                 }) :
                                 null
                             }
@@ -353,39 +522,49 @@ export default function Project() {
                             {   projectData.links ?
                                 projectData.links.map(link=>{
                                     return (
-                                        <a href={link.url} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-lg border border-border-color bg-background px-4 py-3 text-sm font-semibold transition duration-200 ease-linear hover:-translate-y-0.5 hover:border-accent ">
-                                            <span>{link.title}</span>
-                                            <span className="text-sm">
-                                                <ArrowUpRight width={17} className="text-accent"/>
-                                            </span>
-                                        </a>
+                                        <div className="group flex items-center justify-between gap-2 rounded-xl border border-border-color bg-background px-3 py-3 text-sm font-semibold transition duration-200 ease-linear hover:-translate-y-0.5 hover:border-accent hover:shadow-sm">
+                                            <a href={link.url} target="_blank" rel="noreferrer" className="flex flex-1 items-center justify-between gap-3 text-text hover:text-accent">
+                                                <span className="truncate">{link.title}</span>
+                                                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-accent">
+                                                    <ArrowUpRight width={15} />
+                                                </span>
+                                            </a>
+                                            <button
+                                                type="button"
+                                                className="cursor-pointer text-detail transition hover:text-red-500"
+                                                onClick={() => removeLink(link)}
+                                                aria-label={`Delete link ${link.title}`}
+                                            >
+                                                <Trash width={15} height={15} />
+                                            </button>
+                                        </div>
                                     )
                                 }) :
                                 null
                             }
                             
-                            <div
-                            className="flex items-center justify-between rounded-lg border border-border-color bg-background px-4 py-3 text-sm font-semibold transition duration-200 ease-linear hover:-translate-y-0.5 hover:border-accent ">
-                                <div>
+                            <div className="flex flex-col gap-3 rounded-xl border border-border-color bg-background px-3 py-3 text-sm font-semibold transition duration-200 ease-linear hover:border-accent">
+                                <div className="flex w-full flex-col gap-2">
                                     <input 
                                     type="text" 
                                     name="link-name" 
-                                    className="w-full outline-none p-1"
-                                    placeholder="title" 
+                                    className="w-full rounded-lg border border-accent/40 bg-background px-2 py-1.5 outline-none placeholder:text-detail/70"
+                                    placeholder="Link title" 
                                     value={linkName}
                                     onChange={(e)=>setLinkName(e.target.value)}
                                     />
                                     <input 
                                     type="text" 
                                     name="link-url"
-                                    className="w-full outline-none p-1"
-                                    placeholder="enter url"
+                                    className="w-full rounded-lg border border-accent/40 bg-background px-2 py-1.5 outline-none placeholder:text-detail/70"
+                                    placeholder="https://example.com"
                                     value={linkUrl}
                                     onChange={(e)=>setLinkUrl(e.target.value)}
                                     />
                                 </div>
                                 <Button 
                                 primary={true}
+                                classes="whitespace-nowrap"
                                 onClick={addNewLink}>Add new link</Button>
                             </div>
                         </div>

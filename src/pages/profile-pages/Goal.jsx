@@ -25,7 +25,6 @@ export default function Goal(){
     const [projectDesc, setProjectDesc] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
     const currentDate = new Date();
-    console.log(currentDate);
     
 
     const progress  =
@@ -111,30 +110,30 @@ export default function Goal(){
     
     async function uploadImage(file){
 
-    const formData = new FormData();
-
-    formData.append("file", file);
-    formData.append(
-        "upload_preset",
-        "skillforge_images"
-    );
-    
-    const response = await fetch(
-        `https://api.cloudinary.com/v1_1/mi3zklxx/image/upload`,
-        {
-            method: "POST",
-            body: formData,
+        const formData = new FormData();
+        
+        formData.append("file", file);
+        formData.append(
+            "upload_preset",
+            "skillforge_images"
+        );
+        
+        const response = await fetch(
+            `https://api.cloudinary.com/v1_1/mi3zklxx/image/upload`,
+            {
+                method: "POST",
+                body: formData,
+            }
+        );
+        
+        if (!response.ok) {
+            throw new Error("Image upload failed");
         }
-    );
-    
-    if (!response.ok) {
-        throw new Error("Image upload failed");
-    }
-    
-    const data = await response.json();
-    
-    return data.secure_url;
-};
+        
+        const data = await response.json();
+        
+        return data.secure_url;
+    };
     //----------------------------------------------------------------------
 
 
