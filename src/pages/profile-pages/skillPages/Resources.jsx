@@ -90,6 +90,21 @@ export default function Resources(){
         setUpdateMode(null)
     }
 
+    useEffect(()=>{
+        const docRef = doc(db, "users", userId , "goals",goal,"skills",skill)
+        async function updateSkill(){
+        try{
+            await updateDoc(docRef, {
+                resourcesCount:resources.length
+            });
+            
+        }catch(err){
+            console.log(err);
+        }
+        }
+        updateSkill();
+    },[resources,goal,skill,userId])
+
     if(loading){
         return(
             <div className="bg-card-background shadow rounded p-section flex flex-col">

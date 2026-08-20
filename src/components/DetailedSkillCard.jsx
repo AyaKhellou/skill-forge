@@ -1,15 +1,17 @@
 import { Link } from "react-router-dom"
 import { useState } from "react"
 import ProgressBar from "./ProgressBar"
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase-config";
 
-
-export default function DetailedSkillCard({ id, name, status}){
+export default function DetailedSkillCard({ id, name, status, progress,skill, userId, goalId}){
 
     const[notes,setNotes] = useState(null)
-    const[projects,setProjects] = useState(null)
     const[studyTimer,setStudyTimer] = useState(null)
     const[sources,setSources] = useState(null)
     const[milestones,setMilestones] = useState(null)
+
+
 
     return(
         <div className="bg-background skill rounded my-2 p-3 shadow flex items-center gap-4 skill-card">
@@ -23,14 +25,13 @@ export default function DetailedSkillCard({ id, name, status}){
                     >{status ? "completed" : "pending"}
                     </span>
                 </div>
-                    <ProgressBar progress={50}/>
+                    <ProgressBar progress={progress}/>
                 <div className="flex items-center gap-4 mt-3">
                     <div className="skill-details text-sm text-detail flex gap-4">
-                        <span>{notes ? notes.length : 0} notes</span>
-                        <span>{projects ? projects.length : 0} projects</span>
+                        <span>{skill?.notesCount ?? 0} {skill?.notesCount === 1 ?  "note" : "notes"}</span>
+                        <span>{skill?.resourcesCount ?? 0} {skill?.resourcesCount === 1 ? "resource" : "resources"}</span>
+                        <span>{skill?.milestonesCount ?? 0} {skill?.milestonesCount === 1 ? "milestone" : "milestones"}</span>
                         <span>studied {studyTimer ?? 0} hrs</span>
-                        <span>{sources ? sources.length : 0} sources</span>
-                        <span>{milestones ? milestones.length : 0} milestones</span>
                     </div>
                 </div>
             </Link>

@@ -3,7 +3,7 @@ import Milestone from "../../../components/Milestone";
 import Button from "../../../components/Button";
 import { useOutletContext } from "react-router-dom";
 import { nanoid } from "nanoid";
-import { collection,doc,onSnapshot, setDoc } from "firebase/firestore";
+import { collection,doc,onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 import Loader from "../../../components/Loader";
 
@@ -11,13 +11,13 @@ import Loader from "../../../components/Loader";
 export default function Milestones(){
     const [updateMode, setUpdateMode] = useState(false)
     const [milestones, setMilestones] = useState(null)
-    const [newMilestone, setNewMilestone] = useState("")
     const [loading, setLoading] = useState(true)
-
-    const { skill, goal, userId } = useOutletContext();
+    const [newMilestone, setNewMilestone] = useState("")
+    
+    let { skill, goal, userId } = useOutletContext();
     const now = new Date();
     const id = nanoid();
-
+    
     useEffect(() => {
         const milestonesRef = collection(db, "users", userId, "goals", goal, "skills", skill, "milestones");
         onSnapshot(
@@ -36,7 +36,7 @@ export default function Milestones(){
         }
         );
     }, [userId, goal, skill]);
-
+    
 
     function addMilestone(){
         setUpdateMode(true)
@@ -61,6 +61,25 @@ export default function Milestones(){
         setUpdateMode(false)
         setNewMilestone("")
     }
+
+    useEffect(()=>{
+        const docRef = doc(db, "users", userId , "goals",goal,"skills",skill)
+        const progress = Math.ceil(milestones?.filter(milestone=> milestone.status === true).length * 100 / milestones?.length)
+        async function updateSkill(){
+        try{
+            await updateDoc(docRef, {
+                progress : progress,
+                status: progress === 100 ? true : false,
+                milestonesCount:milestones?.length
+            });
+            
+        }catch(err){
+            console.log(err);
+        }
+        }
+        updateSkill();
+    },[milestones,goal,skill,userId])
+
     
     if(loading){
         return(

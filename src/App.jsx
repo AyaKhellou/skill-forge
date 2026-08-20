@@ -19,7 +19,7 @@ import Milestones from './pages/profile-pages/skillPages/Milestones'
 import Notes from './pages/profile-pages/skillPages/Notes'
 import Resources from './pages/profile-pages/skillPages/Resources'
 import Project from './pages/profile-pages/Project'
-// import StudySessions from './pages/profile-pages/skillPages/StudySessions'
+import SkillStudySessions from './pages/profile-pages/skillPages/SkillStudySessions'
 
 export default function App() {
   return (
@@ -41,7 +41,7 @@ export default function App() {
             <Route index element={<Milestones/>} />
             <Route path='notes' element={<Notes/>}/>
             <Route path='resources' element={<Resources/>}/>
-            {/* <Route path='study-sessions'/> */}
+            <Route path='skillStudySessions' element={<SkillStudySessions/>}/>
           </Route>
 
           <Route path="studysessions" element={<StudySessions/>} />

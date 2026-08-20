@@ -88,6 +88,21 @@ export default function Notes(){
         setUpdateMode(null)
     }
 
+    useEffect(()=>{
+        const docRef = doc(db, "users", userId , "goals",goal,"skills",skill)
+        async function updateSkill(){
+        try{
+            await updateDoc(docRef, {
+                notesCount:notes.length
+            });
+            
+        }catch(err){
+            console.log(err);
+        }
+        }
+        updateSkill();
+    },[notes,goal,skill,userId])
+
     if(loading){
         return(
             <div className="bg-card-background shadow rounded p-section flex flex-col">

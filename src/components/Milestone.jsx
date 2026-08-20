@@ -35,7 +35,6 @@ export default function Milestone({checkVal,milestoneVal, userId, goalId, skillI
     }
     
     useEffect(()=>{
-        console.log(inputRef.current);
         inputRef.current?.focus();
     },[editMode])
 

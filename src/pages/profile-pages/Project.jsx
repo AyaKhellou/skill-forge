@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowUpRight, Check, Pen, Plus, Trash } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Check, Pen, Plus, Trash, X } from "lucide-react";
 import Button from "../../components/Button";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -28,6 +28,21 @@ export default function Project() {
     const [projectTitle, setProjectTitle] = useState("")
     const [editBriefDesMode, setEditBriefDesMode] = useState(false)
     const [briefDescription ,setBriefDescription] = useState("")
+
+    // edit item states
+    const [editingReflectionId, setEditingReflectionId] = useState(null)
+    const [editReflectionTitle, setEditReflectionTitle] = useState("")
+    const [editReflectionContent, setEditReflectionContent] = useState("")
+
+    const [editingLessonId, setEditingLessonId] = useState(null)
+    const [editLessonContent, setEditLessonContent] = useState("")
+
+    const [editingTech, setEditingTech] = useState(null)
+    const [editTechValue, setEditTechValue] = useState("")
+
+    const [editingLinkId, setEditingLinkId] = useState(null)
+    const [editLinkTitle, setEditLinkTitle] = useState("")
+    const [editLinkUrl, setEditLinkUrl] = useState("")
 
     const [changeImageMode, setChangeImageMode] = useState(false)
     const [imagePreview, setImagePreview] = useState(null);
@@ -158,6 +173,79 @@ export default function Project() {
 
     function removeLink(linkItem){
         updateSkill({ links: arrayRemove(linkItem) })
+    }
+
+    // --- Edit handlers for reflections, lessons, tech and links ---
+    function startEditReflection(reflection){
+        setEditingReflectionId(reflection.id)
+        setEditReflectionTitle(reflection.title)
+        setEditReflectionContent(reflection.content)
+    }
+
+    function cancelEditReflection(){
+        setEditingReflectionId(null)
+        setEditReflectionTitle("")
+        setEditReflectionContent("")
+    }
+
+    function saveEditedReflection(oldReflection){
+        const updated = { ...oldReflection, title: editReflectionTitle, content: editReflectionContent }
+        updateSkill({ reflections: arrayRemove(oldReflection) })
+        updateSkill({ reflections: arrayUnion(updated) })
+        cancelEditReflection()
+    }
+
+    function startEditLesson(lessonItem){
+        setEditingLessonId(lessonItem.id)
+        setEditLessonContent(lessonItem.content)
+    }
+
+    function cancelEditLesson(){
+        setEditingLessonId(null)
+        setEditLessonContent("")
+    }
+
+    function saveEditedLesson(oldLesson){
+        const updated = { ...oldLesson, content: editLessonContent }
+        updateSkill({ lessonsLearned: arrayRemove(oldLesson) })
+        updateSkill({ lessonsLearned: arrayUnion(updated) })
+        cancelEditLesson()
+    }
+
+    function startEditTech(skillItem){
+        setEditingTech(skillItem)
+        setEditTechValue(skillItem)
+    }
+
+    function cancelEditTech(){
+        setEditingTech(null)
+        setEditTechValue("")
+    }
+
+    function saveEditedTech(oldSkill){
+        if(!editTechValue) return cancelEditTech()
+        updateSkill({ techStack: arrayRemove(oldSkill) })
+        updateSkill({ techStack: arrayUnion(editTechValue) })
+        cancelEditTech()
+    }
+
+    function startEditLink(linkItem){
+        setEditingLinkId(linkItem.id)
+        setEditLinkTitle(linkItem.title)
+        setEditLinkUrl(linkItem.url)
+    }
+
+    function cancelEditLink(){
+        setEditingLinkId(null)
+        setEditLinkTitle("")
+        setEditLinkUrl("")
+    }
+
+    function saveEditedLink(oldLink){
+        const updated = { ...oldLink, title: editLinkTitle, url: editLinkUrl }
+        updateSkill({ links: arrayRemove(oldLink) })
+        updateSkill({ links: arrayUnion(updated) })
+        cancelEditLink()
     }
 
     function saveDescription(){
@@ -381,18 +469,54 @@ export default function Project() {
                                 projectData.reflections ?
                                 projectData.reflections.map(reflection=>{
                                     return (
-                                        <div className="relative rounded-xl border border-accent bg-background p-4">
-                                            <button
-                                                type="button"
-                                                className="absolute right-3 top-3 cursor-pointer text-detail transition hover:text-red-500"
-                                                onClick={() => removeReflection(reflection)}
-                                                aria-label={`Delete reflection ${reflection.title}`}
-                                            >
-                                                <Trash width={16} height={16} />
-                                            </button>
-                                            <h4 className="font-semibold text-text pr-8">{reflection.title}</h4>
-                                            <p className="mt-2 text-sm leading-6 text-detail">{reflection.content}</p>
-                                        </div>
+                                            <div className="relative rounded-xl border border-accent bg-background p-4">
+                                                <div className="absolute right-3 top-3 flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        className="cursor-pointer text-detail transition hover:text-accent"
+                                                        onClick={() => startEditReflection(reflection)}
+                                                        aria-label={`Edit reflection ${reflection.title}`}
+                                                    >
+                                                        <Pen width={14} height={14} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="cursor-pointer text-detail transition hover:text-red-500"
+                                                        onClick={() => removeReflection(reflection)}
+                                                        aria-label={`Delete reflection ${reflection.title}`}
+                                                    >
+                                                        <Trash width={16} height={16} />
+                                                    </button>
+                                                </div>
+                                                {editingReflectionId === reflection.id ? (
+                                                    <div className="flex flex-col gap-2">
+                                                        <input
+                                                            className="font-semibold text-text w-full outline-none"
+                                                            type="text"
+                                                            value={editReflectionTitle}
+                                                            onChange={(e) => setEditReflectionTitle(e.target.value)}
+                                                        />
+                                                        <textarea
+                                                            className="mt-2 text-sm leading-6 text-detail w-full outline-none resize-none h-fit"
+                                                            value={editReflectionContent}
+                                                            onChange={(e) => setEditReflectionContent(e.target.value)}
+                                                        />
+                                                        <div className="flex gap-2 self-end">
+                                                            <button className="cursor-pointer" onClick={() => saveEditedReflection(reflection)}>
+                                                                <Check />
+                                                            </button>
+                                                            <button className="cursor-pointer" onClick={cancelEditReflection}>
+                                                                <X className="text-red"/>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <h4 className="font-semibold text-text pr-8">{reflection.title}</h4>
+                                                        <p className="mt-2 text-sm leading-6 text-detail">{reflection.content}</p>
+                                                    </>
+                                                )}
+                                            </div>
                                     )
                                 })
                                 :
@@ -437,17 +561,43 @@ export default function Project() {
                                 projectData.lessonsLearned && projectData.lessonsLearned.length > 0 ?
                                 projectData.lessonsLearned.map(lessonLearned=>{
                                     return (
-                                        <div className="flex flex-row-reverse justify-between rounded-xl border border-accent bg-background p-4">
-                                            <button
-                                                type="button"
-                                                className="cursor-pointer text-detail transition hover:text-red-500"
-                                                onClick={() => removeLesson(lessonLearned)}
-                                                aria-label={`Delete lesson ${lessonLearned.content}`}
-                                            >
-                                                <Trash width={15} height={15} />
-                                            </button>
-                                            <p className="pr-8 text-sm leading-6 text-detail">{lessonLearned.content}</p>
-                                        </div>
+                                            <div className="flex flex-row-reverse justify-between rounded-xl border border-accent bg-background p-4">
+                                                <div className="flex gap-2 items-start">
+                                                    <button
+                                                        type="button"
+                                                        className="cursor-pointer text-detail transition hover:text-accent"
+                                                        onClick={() => startEditLesson(lessonLearned)}
+                                                        aria-label={`Edit lesson ${lessonLearned.content}`}
+                                                    >
+                                                        <Pen width={14} height={14} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="cursor-pointer text-detail transition hover:text-red-500"
+                                                        onClick={() => removeLesson(lessonLearned)}
+                                                        aria-label={`Delete lesson ${lessonLearned.content}`}
+                                                    >
+                                                        <Trash width={15} height={15} />
+                                                    </button>
+                                                </div>
+                                                {editingLessonId === lessonLearned.id ? (
+                                                    <div className="flex-1 pr-8">
+                                                        <input
+                                                            className="w-full outline-none"
+                                                            value={editLessonContent}
+                                                            onChange={(e) => setEditLessonContent(e.target.value)}
+                                                        />
+                                                        <div className="flex gap-2 mt-2">
+                                                            <button onClick={() => saveEditedLesson(lessonLearned)} className="cursor-pointer"><Check/></button>
+                                                            <button onClick={cancelEditLesson} className="cursor-pointer">
+                                                                <X className="text-red"/>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <p className="pr-8 text-sm leading-6 text-detail">{lessonLearned.content}</p>
+                                                )}
+                                            </div>
                                     )
                                 }) :
                                 <div className="rounded-xl border border-dashed border-accent bg-background p-4 text-sm text-detail">
@@ -482,17 +632,37 @@ export default function Project() {
                                 projectData.techStack ?
                                 projectData.techStack.map(skill=>{
                                     return (
-                                        <span className="tag bg-accent flex items-center gap-2">
-                                            {skill}
-                                            <button
-                                                type="button"
-                                                className="cursor-pointer text-detail transition hover:text-red-500"
-                                                onClick={() => removeTechSkill(skill)}
-                                                aria-label={`Delete skill ${skill}`}
-                                            >
-                                                <Trash width={12} height={12} />
-                                            </button>
-                                        </span>
+                                        editingTech === skill ? (
+                                            <div className="tag bg-accent flex items-center gap-2">
+                                                <input className="outline-none bg-transparent" value={editTechValue} onChange={(e)=>setEditTechValue(e.target.value)} />
+                                                <button className="cursor-pointer" onClick={()=>saveEditedTech(skill)}><Check width={14} /></button>
+                                                <button className="cursor-pointer" onClick={cancelEditTech}>
+                                                    <X width={14} className="text-red"/>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <span className="tag bg-accent flex items-center gap-2">
+                                                {skill}
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        type="button"
+                                                        className="cursor-pointer text-detail transition hover:text-accent"
+                                                        onClick={() => startEditTech(skill)}
+                                                        aria-label={`Edit skill ${skill}`}
+                                                    >
+                                                        <Pen width={12} height={12} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="cursor-pointer text-detail transition hover:text-red-500"
+                                                        onClick={() => removeTechSkill(skill)}
+                                                        aria-label={`Delete skill ${skill}`}
+                                                    >
+                                                        <Trash width={12} height={12} />
+                                                    </button>
+                                                </div>
+                                            </span>
+                                        )
                                     )
                                 }) :
                                 null
@@ -523,20 +693,45 @@ export default function Project() {
                                 projectData.links.map(link=>{
                                     return (
                                         <div className="group flex items-center justify-between gap-2 rounded-xl border border-border-color bg-background px-3 py-3 text-sm font-semibold transition duration-200 ease-linear hover:-translate-y-0.5 hover:border-accent hover:shadow-sm">
-                                            <a href={link.url} target="_blank" rel="noreferrer" className="flex flex-1 items-center justify-between gap-3 text-text hover:text-accent">
-                                                <span className="truncate">{link.title}</span>
-                                                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-accent">
-                                                    <ArrowUpRight width={15} />
-                                                </span>
-                                            </a>
-                                            <button
-                                                type="button"
-                                                className="cursor-pointer text-detail transition hover:text-red-500"
-                                                onClick={() => removeLink(link)}
-                                                aria-label={`Delete link ${link.title}`}
-                                            >
-                                                <Trash width={15} height={15} />
-                                            </button>
+                                            {editingLinkId === link.id ? (
+                                                <div className="flex flex-1 flex-col gap-2">
+                                                    <input value={editLinkTitle} onChange={(e)=>setEditLinkTitle(e.target.value)} className="w-full outline-none" />
+                                                    <input value={editLinkUrl} onChange={(e)=>setEditLinkUrl(e.target.value)} className="w-full outline-none" />
+                                                    <div className="flex gap-2 self-end">
+                                                        <button onClick={()=>saveEditedLink(link)} className="cursor-pointer"><Check/></button>
+                                                        <button onClick={cancelEditLink} className="cursor-pointer">
+                                                            <X className="text-red"/>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <a href={link.url} target="_blank" rel="noreferrer" className="flex flex-1 items-center justify-between gap-3 text-text hover:text-accent">
+                                                        <span className="truncate">{link.title}</span>
+                                                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-accent">
+                                                            <ArrowUpRight width={15} />
+                                                        </span>
+                                                    </a>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            className="cursor-pointer text-detail transition hover:text-accent"
+                                                            onClick={() => startEditLink(link)}
+                                                            aria-label={`Edit link ${link.title}`}
+                                                        >
+                                                            <Pen width={14} height={14} />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="cursor-pointer text-detail transition hover:text-red-500"
+                                                            onClick={() => removeLink(link)}
+                                                            aria-label={`Delete link ${link.title}`}
+                                                        >
+                                                            <Trash width={15} height={15} />
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     )
                                 }) :

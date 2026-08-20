@@ -83,6 +83,7 @@ export default function Goal(){
             id:id,
             name: newSkillName,
             status: false,
+            createdAt:currentDate.toLocaleDateString()
         }
         async function createSkill() {
             const docRef = doc(db, "users", user.uid, "goals",goal,"skills",id);
@@ -204,7 +205,12 @@ export default function Goal(){
                         key={skill.id}
                         id={skill.id}
                         name={skill.name}
-                        status={skill.status}/>
+                        status={skill.status}
+                        progress={skill.progress}
+                        skill={skill}
+                        userId={user.uid}
+                        goalId={goal}
+                        />
                     )}
                 </div>
                 <div className="bg-background rounded my-2 p-3 shadow flex items-center justify-between gap-4">
