@@ -167,9 +167,6 @@ export default function Goal(){
         setProjectDesc("")
     }
 
-    console.log(imagePath);
-    
-
     if(loading){
         return (
             <section className="page">
@@ -187,9 +184,10 @@ export default function Goal(){
                 </Link>
                 <h2>{goalData?.goalName}</h2>
                 <ProgressBar progress={progress}/>
-                <div className="details flex justify-between">
+                <div className="details flex justify-between items-center">
                     <span className="detail font-bold!">
-                        {skills?.filter(skill=>skill.status === true).length}/{skills?.length} skills . {progress} %
+                        <p>{skills?.filter(skill=>skill.status === true).length}/{skills?.length} skills . {progress} %</p>
+                        <p className="pt-2">{projects?.length} projects</p>
                     </span>
                     <span className="detail study-hours">
                         total study time
