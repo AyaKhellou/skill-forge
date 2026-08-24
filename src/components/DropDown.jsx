@@ -22,9 +22,10 @@ export default function DropDown({options, value , onChange, className}){
             </button>
             <ul className={open ? "block" : "hidden"}>
                 {options.map(option=>
-                    <li 
+                    <li
+                    key={option.id} 
                     className="cursor-pointer  p-2 border-b border-transparent hover:border-accent bg-background transition duration-300"
-                    onClick={()=>selectOption(option)}>{option}</li>
+                    onClick={()=>selectOption(option)}>{option.name}</li>
                 )}
             </ul>
         </div>

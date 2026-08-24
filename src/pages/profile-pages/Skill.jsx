@@ -45,8 +45,6 @@ export default function Skill(){
             await updateDoc(docRef, {
                 name: skillTitle
             });
-            // await updateDoc(docRef, {latestUpdate:currentDate.toLocaleString()});
-            
         }catch(err){
             console.log(err);
         }

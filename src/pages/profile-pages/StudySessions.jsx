@@ -1,18 +1,68 @@
 import { useEffect, useRef, useState } from "react";
 import DropDown from "../../components/DropDown";
+import { getUserGoals } from "../../firebase/firestore";
+import { useAuthContext } from "../../authContext";
+import { collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase-config";
+import { nanoid } from "nanoid";
 
 export default function StudySkills(){
-    const options = ["css", 'js', 'ts', 'tailwind']
-    const [selectedOption, setSelectedOption] = useState(options[0])
+    
     const [seconds, setSeconds] = useState(0)
     const [minutes, setMinutes] = useState(0)
     const [hours, setHours] = useState(0)
-
-
-    console.log(selectedOption);
+    const { user } = useAuthContext();
+    const [goals,setGoals] = useState(null);
+    const [skills, setSkills] = useState([])
     
-    
+    const [selectedOption, setSelectedOption] = useState()
 
+    const id = nanoid();
+    //input states:
+
+    const [sessionTitle, setSessionTitle] = useState("")
+    const [todaysGoal, setTodaysGoal] = useState("")
+
+    useEffect(()=>{
+        setSelectedOption(skills[0])
+    },[skills])
+
+
+    
+    useEffect(()=>{
+        if(!user) return;
+        if(user){
+            getUserGoals(user.uid)
+            .then(goals => setGoals(goals))
+        }
+    },[user])
+
+    const skillsByGoal = {}
+
+    useEffect(()=>{
+        if(goals){
+            goals.map(goal=>{
+                onSnapshot(
+                    collection(db, "users", user.uid, "goals", goal.id, "skills"), (snapshot) => {
+                    const skillsList = snapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        goalId:goal.id,
+                        name:doc.data().name,
+                        duration:doc.data().duration || "00:00:00"
+                    }));
+                    skillsByGoal[goal.id] = skillsList;
+                    setSkills(Object.values(skillsByGoal).flat())
+
+                },
+                (error) => {
+                    console.error("Error fetching skills: ", error);
+                }
+                );
+
+            })
+        }
+    },[goals,user])
+    
     useEffect(()=>{
         if(seconds > 59){
             setMinutes(prev=> prev + 1)
@@ -36,13 +86,36 @@ export default function StudySkills(){
     }
     
     function pauseSession(){
-        console.log(time);
         clearInterval(intervalRef.current);
     }
-    
+
+    function timeToSeconds(time) {
+        const [hours, minutes, seconds] = time.split(":").map(Number);
+        return hours * 3600 + minutes * 60 + seconds;
+    } 
+    const currentDate = new Date()
     function finishSession() {
+        const docRef = doc(db,"users", user.uid, "goals",selectedOption.goalId,"skills",selectedOption.id, "studySessions", id)
         console.log(time);
         clearInterval(intervalRef.current);
+
+        async function saveStudySession() {
+            try{
+                await setDoc(docRef, {
+                    id:id,
+                    name: sessionTitle,
+                    duration: timeToSeconds(time),
+                    focus: todaysGoal,
+                    date:currentDate.toLocaleDateString()
+                });
+                console.log("milestone created!!!!!!!");
+            } catch(err){
+                console.log(err);
+            }
+        }
+        saveStudySession()
+        setTodaysGoal("")
+        setSessionTitle("")
         setSeconds(0)
         setMinutes(0)
         setHours(0)
@@ -55,20 +128,30 @@ export default function StudySkills(){
                 <div className="info flex gap-3 w-full">
                     <div className="flex flex-col gap-2 w-1/3">
                         <label htmlFor="session-title" className="detail">Session title</label>
-                        <input type="text" id="session-title" className="p-2 border-b border-accent bg-background outline-none" />
+                        <input 
+                        type="text" 
+                        id="session-title" 
+                        className="p-2 border-b border-accent bg-background outline-none"
+                        value={sessionTitle}
+                        onChange={(e)=> setSessionTitle(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-2 w-1/3">
                         <label className="detail" htmlFor="skill">Skill</label>
                         <DropDown 
                         className="w-full"
                         id="skill"
-                        options={options}
-                        value={selectedOption}
-                        onChange={setSelectedOption}  />
+                        options={skills}
+                        value={selectedOption?.name}
+                        onChange={setSelectedOption} />
                     </div>
                     <div className="flex flex-col gap-2 w-1/3">
                         <label htmlFor="session-goal" className="detail">Today's goal</label>
-                        <input type="text" id="session-title" className="p-2 border-b border-accent bg-background outline-none" />
+                        <input 
+                        type="text" 
+                        id="session-title" 
+                        className="p-2 border-b border-accent bg-background outline-none"
+                        value={todaysGoal}
+                        onChange={(e)=> setTodaysGoal(e.target.value)}/>
                     </div>
                 </div>
             </div>
