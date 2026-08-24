@@ -5,8 +5,14 @@ import { useAuthContext } from "../../authContext";
 import { collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import { nanoid } from "nanoid";
+import Button from '../../components/Button'
+import { useSearchParams } from "react-router-dom";
 
 export default function StudySkills(){
+    const [searchParams, setSearchParams] = useSearchParams()
+    const skillId = searchParams.get("skillId")
+    console.log(skillId);
+    
     
     const [seconds, setSeconds] = useState(0)
     const [minutes, setMinutes] = useState(0)
@@ -18,15 +24,33 @@ export default function StudySkills(){
     const [selectedOption, setSelectedOption] = useState()
 
     const id = nanoid();
+
+    
     //input states:
 
     const [sessionTitle, setSessionTitle] = useState("")
     const [todaysGoal, setTodaysGoal] = useState("")
-
+    
     useEffect(()=>{
-        setSelectedOption(skills[0])
-    },[skills])
+        if(skillId){
+            if (!skills?.length) return;
 
+            const skill = skills.find(skill=> skillId === skill.id)
+
+            if(skill){
+                setSelectedOption(skill);
+            }
+            
+            setSearchParams(prev=>{
+                prev.delete("skillId");
+                return prev;
+            })
+
+        }else{
+            setSelectedOption(skills[0])
+        }
+    },[skills])
+    
 
     
     useEffect(()=>{
@@ -108,10 +132,21 @@ export default function StudySkills(){
                     focus: todaysGoal,
                     date:currentDate.toLocaleDateString()
                 });
-                console.log("milestone created!!!!!!!");
+                console.log("study session created!!!!!!!");
             } catch(err){
                 console.log(err);
             }
+
+            async function updateSkill(){
+                try{
+                    await updateDoc(doc(db,"users", user.uid, "goals",selectedOption.goalId,"skills",selectedOption.id), {
+                        LastStudied: currentDate.toLocaleDateString()
+                    });
+                }catch(err){
+                    console.log(err);
+                }
+            }
+            updateSkill()
         }
         saveStudySession()
         setTodaysGoal("")
@@ -157,10 +192,15 @@ export default function StudySkills(){
             </div>
             <div className="bg-card-background shadow rounded p-section flex flex-col items-center">
                 <h2>{time}</h2>
-                <button onClick={startTimer}>start</button>
-                <button onClick={pauseSession}>pause</button>
-                <button onClick={finishSession}>end</button>
+                <div className="buttons flex gap-4">
+                    <Button onClick={startTimer}>start</Button>
+                    <Button onClick={pauseSession}>pause</Button>
+                    <Button onClick={finishSession}>end</Button>
+                </div>
             </div>
+            {/* <div className="bg-card-background shadow rounded p-section">
+                <h3 className="">Recent study sessions</h3>
+            </div> */}
         </section>
     )
 }

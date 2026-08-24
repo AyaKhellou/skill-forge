@@ -11,6 +11,21 @@ export default function DetailedSkillCard({ id, name, status, progress,skill, us
     const[sources,setSources] = useState(null)
     const[milestones,setMilestones] = useState(null)
 
+    function secondsToTime(seconds){
+        
+    
+        const totalMinutes = Math.floor(seconds / 60);
+        
+        const totalHours = Math.floor(totalMinutes / 60);
+    
+        const remainingSeconds = seconds % 60;
+
+        const remainingMinutes = totalMinutes % 60;
+
+        
+        return`${totalHours <= 9 ? "0"+totalHours : totalHours}:${remainingMinutes <= 9 ? "0"+remainingMinutes : remainingMinutes}:${remainingSeconds <= 9 ? "0"+remainingSeconds : remainingSeconds}`;
+    }
+
 
 
     return(
@@ -31,7 +46,7 @@ export default function DetailedSkillCard({ id, name, status, progress,skill, us
                         <span>{skill?.notesCount ?? 0} {skill?.notesCount === 1 ?  "note" : "notes"}</span>
                         <span>{skill?.resourcesCount ?? 0} {skill?.resourcesCount === 1 ? "resource" : "resources"}</span>
                         <span>{skill?.milestonesCount ?? 0} {skill?.milestonesCount === 1 ? "milestone" : "milestones"}</span>
-                        <span>studied {studyTimer ?? 0} hrs</span>
+                        <span>{skill?.totalTimeStudied ? "studied for " + secondsToTime(skill.totalTimeStudied) : "not studied yet"} </span>
                     </div>
                 </div>
             </Link>

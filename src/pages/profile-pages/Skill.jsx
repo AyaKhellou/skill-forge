@@ -111,12 +111,12 @@ export default function Skill(){
                 <ProgressBar progress={skillData?.progress}/>
             </div>
             <div className="nav-bar bg-card-background shadow p-section flex justify-around">
-                <NavLink to="" end className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Milestones</NavLink>
-                <NavLink to="notes" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Notes</NavLink>
-                <NavLink to="resources" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Resources</NavLink>
-                <NavLink to="skillStudySessions" className={ ({isActive}) => isActive? "text-accent font-bold": ""}>Study Sessions</NavLink>
+                <NavLink to="" end className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Milestones</NavLink>
+                <NavLink to="notes" className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Notes</NavLink>
+                <NavLink to="resources" className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Resources</NavLink>
+                <NavLink to="skillStudySessions" className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Study Sessions</NavLink>
             </div>
-            <Outlet context={ {goal, skill, userId} }/>
+            <Outlet context={ {goal, skill, userId, skillData} }/>
         </section>
     )
     }

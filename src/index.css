@@ -28,14 +28,17 @@ body{
 .description{
     @apply text-detail text-xl leading-10;
 }
-h2{
-    @apply text-3xl font-bold mb-4 text-text;
-}
-p,span,li,a,input,{
+p,span,li,a,input{
     @apply font-figtree text-text;
 }
 h1,h2,h3{
-    @apply font-archivo text-text;
+    @apply font-archivo;
+}
+h2{
+    @apply text-3xl font-bold mb-4 text-text;
+}
+h3{
+    @apply text-xl font-bold mb-4 text-text;
 }
 .text-error{
     @apply text-red text-sm mt-2 self-start;

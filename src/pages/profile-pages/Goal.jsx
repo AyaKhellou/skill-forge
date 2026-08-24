@@ -25,7 +25,23 @@ export default function Goal(){
     const [projectDesc, setProjectDesc] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
     const currentDate = new Date();
+    const totalSeconds = skills?.reduce((total, skill) => total + (skill.totalTimeStudied ?? 0) , 0);
+    // console.log(totalSeconds);
     
+    function secondsToTime(seconds){
+        
+    
+        const totalMinutes = Math.floor(seconds / 60);
+        
+        const totalHours = Math.floor(totalMinutes / 60);
+    
+        const remainingSeconds = seconds % 60;
+
+        const remainingMinutes = totalMinutes % 60;
+
+        
+        return`${totalHours <= 9 ? "0"+totalHours : totalHours}:${remainingMinutes <= 9 ? "0"+remainingMinutes : remainingMinutes}:${remainingSeconds <= 9 ? "0"+remainingSeconds : remainingSeconds}`;
+    }
 
     const progress  =
         skills?.length === 0 ?
@@ -189,10 +205,7 @@ export default function Goal(){
                         <p>{skills?.filter(skill=>skill.status === true).length}/{skills?.length} skills . {progress} %</p>
                         <p className="pt-2">{projects?.length} projects</p>
                     </span>
-                    <span className="detail study-hours">
-                        total study time
-                        10 hours
-                    </span>
+                    <span className="detail study-hours">total study time {secondsToTime(totalSeconds)}</span>
                 </div>
             </div>
             <div className="rounded flex flex-col bg-card-background shadow p-section">
