@@ -41,6 +41,7 @@ export default function SignUp(){
         });
     }
 
+    
 
     return(
         <section className="flex flex-row items-center justify-center p-section">

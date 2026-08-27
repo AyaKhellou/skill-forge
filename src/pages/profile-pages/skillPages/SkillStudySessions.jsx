@@ -1,10 +1,13 @@
-import { ArrowRight, CalendarDays, Clock3, Play } from "lucide-react";
+import { CalendarDays, Clock3, Play } from "lucide-react";
 import { Link, useOutletContext } from "react-router-dom";
 import Button from "../../../components/Button";
 import { useEffect, useState } from "react";
 import { collection, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 import Loader from "../../../components/Loader";
+import Stats from "../../../components/Stats";
+import secondsToTime from "../../../firebase/function";
+import StudySessionCard from "../../../components/StudySessionCard";
 
 
 export default function SkillStudySessions() {
@@ -17,25 +20,6 @@ export default function SkillStudySessions() {
     
     const totalSeconds = studySessions?.reduce((total, session) => total + session.duration, 0);
     
-    
-    function secondsToTime(seconds){
-        
-    
-        const totalMinutes = Math.floor(seconds / 60);
-        
-        const totalHours = Math.floor(totalMinutes / 60);
-    
-        const remainingSeconds = seconds % 60;
-
-        const remainingMinutes = totalMinutes % 60;
-
-        
-        return`${totalHours <= 9 ? "0"+totalHours : totalHours}:${remainingMinutes <= 9 ? "0"+remainingMinutes : remainingMinutes}:${remainingSeconds <= 9 ? "0"+remainingSeconds : remainingSeconds}`;
-    }
-    // console.log(`${totalHours}:${totalMinutes}:${remainingSeconds}`);
-
-    
-
     useEffect(() => {
         const studySessionsRef = collection(db, "users", userId, "goals", goal, "skills", skill, "studySessions");
         onSnapshot(
@@ -80,18 +64,9 @@ export default function SkillStudySessions() {
     return (
         <div className="bg-card-background shadow rounded p-section flex flex-col gap-6">
             <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded bg-background p-4">
-                    <p className="detail">Sessions completed</p>
-                    <p className="mt-1 text-2xl font-semibold text-text">{studySessions?.length}</p>
-                </div>
-                <div className="rounded bg-background p-4">
-                    <p className="detail">Time studied</p>
-                    <p className="mt-1 text-2xl font-semibold text-text">{secondsToTime(totalSeconds)}</p>
-                </div>
-                <div className="rounded bg-background p-4">
-                    <p className="detail">Last studied</p>
-                    <p className="mt-1 text-2xl font-semibold text-text">{skillData?.LastStudied}</p>
-                </div>
+                <Stats title="Sessions completed" value={studySessions?.length} className="bg-background!" />
+                <Stats title="Time studied" value={secondsToTime(totalSeconds)} className="bg-background!" />
+                <Stats title="Last studied" value={skillData?.LastStudied} className="bg-background!" />
             </div>
             <Button primary={true} classes="self-end">
                 <Link to={`/user/studysessions?skillId=${skill}`} className="flex items-center gap-2 ">
@@ -104,16 +79,7 @@ export default function SkillStudySessions() {
                 <h3 className="text-xl font-bold">Recent activity</h3>
 
                 {studySessions.map((session) => (
-                    <article key={session.id} className="flex flex-col gap-3 rounded bg-background p-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                            <h3>{session.focus}</h3>
-                            <p className="detail mt-1">{session.note}</p>
-                        </div>
-                        <div className="flex shrink-0 gap-4 text-sm font-semibold text-detail sm:flex-col sm:items-end sm:gap-1">
-                            <span className="inline-flex items-center gap-1"><CalendarDays size={15} /> {session.date}</span>
-                            <span className="inline-flex items-center gap-1"><Clock3 size={15} /> {secondsToTime(session.duration)}</span>
-                        </div>
-                    </article>
+                    <StudySessionCard key={session.id} session={session}/>
                 ))}
             </div>
         </div>

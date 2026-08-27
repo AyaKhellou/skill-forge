@@ -24,7 +24,7 @@ export default function ProjectCard ({ project, userId, goalId }) {
                 src={project.imageUrl} />
             </div>
             <div className="flex flex-col gap-2 mt-2">
-                <Link to={`projects/${project.id}`} className="text-blue-500 font-bold text-lg">
+                <Link to={`/user/goals/${goalId}/projects/${project.id}`} className="text-blue-500 font-bold text-lg">
                     <h4 className="text-lg font-bold text-text">{project.name}</h4>
                 </Link>
                 <span className="text-sm text-detail">{project.briefDescription}</span>

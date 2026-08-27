@@ -52,7 +52,7 @@ export default function Goals(){
                 <h2>Goals</h2>
                     <div className="flex justify-between items-center">
                         <span className="detail">
-                            finished {goals?.filter(goal=>goal.status === true).length}/{goals?.length} goals
+                            finished {goals?.filter(goal=>goal.status === "completed").length}/{goals?.length} goals
                         </span>
                         <Button 
                         onClick={addNewGoal} 

@@ -7,6 +7,7 @@ import { db } from "../../firebase-config";
 import { nanoid } from "nanoid";
 import Button from '../../components/Button'
 import { useSearchParams } from "react-router-dom";
+import StudySessionCard from "../../components/StudySessionCard";
 
 export default function StudySkills(){
     const [searchParams, setSearchParams] = useSearchParams()
@@ -20,6 +21,10 @@ export default function StudySkills(){
     const { user } = useAuthContext();
     const [goals,setGoals] = useState(null);
     const [skills, setSkills] = useState([])
+    const [studySessions, setStudySessions] = useState(null)
+
+
+
     
     const [selectedOption, setSelectedOption] = useState()
 
@@ -76,7 +81,6 @@ export default function StudySkills(){
                     }));
                     skillsByGoal[goal.id] = skillsList;
                     setSkills(Object.values(skillsByGoal).flat())
-
                 },
                 (error) => {
                     console.error("Error fetching skills: ", error);
@@ -86,7 +90,49 @@ export default function StudySkills(){
             })
         }
     },[goals,user])
+
+    //get study sessions
+    const sessionsBySkill = {}
+    useEffect(()=>{
+        if(skills){
+            skills.map(skill=>{
+                onSnapshot(
+                    collection(db, "users", user.uid, "goals", skill.goalId, "skills",skill.id ,"studySessions"), (snapshot) => {
+                    const sessionsList = snapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    sessionsBySkill[skill.id] = sessionsList;
+                    setStudySessions(Object.values(sessionsBySkill).flat())
+                },
+                (error) => {
+                    console.error("Error fetching skills: ", error);
+                }
+                );
+
+            })
+        }
+    },[skills,user])
+
+const [currentSkillSession, setCurrentSkillSession] = useState(null)
+    useEffect(()=>{
+        if(!selectedOption) return;
+                onSnapshot(
+                    collection(db, "users", user.uid, "goals", selectedOption.goalId, "skills",selectedOption.id ,"studySessions"), (snapshot) => {
+                    const data = snapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    setCurrentSkillSession(data)
+                },
+                (error) => {
+                    console.error("Error fetching skills: ", error);
+                }
+                );
+
+    },[selectedOption,user])
     
+
     useEffect(()=>{
         if(seconds > 59){
             setMinutes(prev=> prev + 1)
@@ -140,13 +186,30 @@ export default function StudySkills(){
             async function updateSkill(){
                 try{
                     await updateDoc(doc(db,"users", user.uid, "goals",selectedOption.goalId,"skills",selectedOption.id), {
-                        LastStudied: currentDate.toLocaleDateString()
+                        LastStudied: currentDate.toLocaleDateString(),
+                        studySessionsCount: currentSkillSession.length
                     });
                 }catch(err){
                     console.log(err);
                 }
             }
             updateSkill()
+            async function updateProfile(){
+                try{
+                    await updateDoc(doc(db,"users", user.uid), {
+                        recentStudySession:{
+                            id:id,
+                            name: sessionTitle,
+                            duration: timeToSeconds(time),
+                            focus: todaysGoal,
+                            date:currentDate.toLocaleDateString()
+                        }
+                    });
+                }catch(err){
+                    console.log(err);
+                }
+            }
+            updateProfile()
         }
         saveStudySession()
         setTodaysGoal("")
@@ -156,6 +219,7 @@ export default function StudySkills(){
         setHours(0)
     }
 
+    
     return(
         <section className="page flex flex-col gap-3">
             <div className="bg-card-background shadow rounded p-section flex flex-col items-center">
@@ -198,9 +262,16 @@ export default function StudySkills(){
                     <Button onClick={finishSession}>end</Button>
                 </div>
             </div>
-            {/* <div className="bg-card-background shadow rounded p-section">
+            <div className="bg-card-background shadow rounded p-section">
                 <h3 className="">Recent study sessions</h3>
-            </div> */}
+                <div className="flex flex-col gap-3">
+                    {
+                        studySessions?.map(session=>(
+                            <StudySessionCard key={session.id} session={session}/>
+                        ))
+                    }
+                </div>
+            </div>
         </section>
     )
 }

@@ -6,7 +6,7 @@ import Authrequired from "./layouts/Authrequired"
 import Dashboard from "./pages/profile-pages/Dashboard"
 import Goals from "./pages/profile-pages/Goals"
 import StudySessions from "./pages/profile-pages/StudySessions"
-import Achievements from "./pages/profile-pages/Achievements"
+import Projects from "./pages/profile-pages/Projects"
 import Goal from "./pages/profile-pages/Goal"
 
 import LogIn from "./pages/landing-pages/LogIn"
@@ -20,6 +20,8 @@ import Notes from './pages/profile-pages/skillPages/Notes'
 import Resources from './pages/profile-pages/skillPages/Resources'
 import Project from './pages/profile-pages/Project'
 import SkillStudySessions from './pages/profile-pages/skillPages/SkillStudySessions'
+import Skills from './pages/profile-pages/Skills'
+import Settings from './pages/profile-pages/Settings'
 
 export default function App() {
   return (
@@ -36,6 +38,7 @@ export default function App() {
           <Route path="goals" element={<Goals/>} />
           <Route path="goals/:goal" element={<Goal/>}/>
           <Route path='goals/:goal/projects/:project' element={<Project/>}/>
+          <Route path='settings' element={<Settings/>}/>
 
           <Route path="goals/:goal/skills/:skill" element={<Skill/>}>
             <Route index element={<Milestones/>} />
@@ -45,7 +48,8 @@ export default function App() {
           </Route>
 
           <Route path="studysessions" element={<StudySessions/>} />
-          <Route path="achievements" element={<Achievements/>} />
+          {/* <Route path="skills" element={<Skills/>} />
+          <Route path="projects" element={<Projects/>} /> */}
           
         </Route>
       </Routes>

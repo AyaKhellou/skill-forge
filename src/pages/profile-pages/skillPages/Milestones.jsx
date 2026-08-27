@@ -52,7 +52,6 @@ export default function Milestones(){
                     status:false,
                     startedAt: now.toLocaleDateString() 
                 });
-                console.log("milestone created!!!!!!!");
             } catch(err){
                 console.log(err);
             }

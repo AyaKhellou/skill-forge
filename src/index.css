@@ -5,11 +5,13 @@
     --font-figtree: 'Figtree', sans-serif;
     --color-primary: #FF637E;
     --color-accent: #E9A825;
-    --color-background: #FAFAF8;
-    --color-text: #1F2937;
-    --color-detail: #6B7280;
-    --color-card-background: #F4F4F0;
-    --color-border-color: #BFBFBF;
+
+    --color-background: var(--background);
+    --color-text: var(--text);
+    --color-detail: var(--detail);
+    --color-card-background: var(--card-background);
+    --color-border-color: var(--border-color);
+
     --text-normal: 1.15rem;
     --spacing-section: 1.5rem;
     --color-blush: #fbebec;
@@ -20,7 +22,24 @@
     --color-sky : #dee7f6;
     --color-red: #c53d4b;
 }
+:root {
+    --background: #FAFAF8;
+    --text: #1F2937;
+    --detail: #6B7280;
+    --card-background: #F4F4F0;
+    --border-color: #BFBFBF;
+}
 
+.dark {
+    --background: #1F2937;
+    --text: #FAFAF8;
+    --detail: #D1D5DB;
+    --card-background: #374151;
+    --border-color: #4B5563;
+}
+svg{
+    @apply text-text
+}
 
 body{
     @apply bg-background ;
@@ -39,6 +58,9 @@ h2{
 }
 h3{
     @apply text-xl font-bold mb-4 text-text;
+}
+h4{
+    @apply text-lg font-bold mb-4 text-text;
 }
 .text-error{
     @apply text-red text-sm mt-2 self-start;

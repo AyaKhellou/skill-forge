@@ -6,7 +6,7 @@ import Loader from "../../components/Loader";
 import Button from "../../components/Button"
 import { ArrowLeft, Check } from "lucide-react";
 import DetailedSkillCard from "../../components/DetailedSkillCard";
-import { collection, doc,onSnapshot,setDoc } from "firebase/firestore";
+import { collection, doc,onSnapshot,setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import { nanoid } from "nanoid";
 import ProjectCard from "../../components/ProjectCard";
@@ -48,16 +48,30 @@ export default function Goal(){
         0:
         Math.round((100 * skills?.filter(skill=> skill.status === true).length) / skills?.length)
 
+        console.log(progress);
+        const goalRef = doc(db,"users", user.uid, "goals",goal);
+
+        useEffect(()=>{
+            async function updateGoal(){
+                try{
+                    await updateDoc(goalRef, {
+                        status: progress === 100 ? "completed" : "pending",
+                        progress:progress
+                    });
+                }catch(err){
+                    console.log(err);
+                }
+            }
+                updateGoal()
+        },[progress,goalRef])
+        
     useEffect(() => {
-            
-        const docRef = doc(db,"users", user.uid, "goals",goal);
-        onSnapshot(docRef, (doc)=>{
+        onSnapshot(goalRef, (doc)=>{
             setGoalData(doc.data())
         }),(error) => {
             console.error("Error fetching goal data: ", error);
         }
         
-
         const skillsRef = collection(db, "users", user.uid, "goals", goal, "skills");
         onSnapshot(
             skillsRef, (snapshot) => {
@@ -71,6 +85,7 @@ export default function Goal(){
             console.error("Error fetching skills: ", error);
         }
         );
+        
 
         const projectsRef = collection(db, "users", user.uid, "goals", goal, "projects");
         onSnapshot(

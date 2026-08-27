@@ -71,7 +71,7 @@ export default function Skill(){
                     <p>go back</p>
                 </Link>
                 <span 
-                    className={`text-sm rounded-full p-1 ${skillData?.status ? "bg-sage" : "bg-peach"}`}
+                    className={`text-sm text-[#1F2937]! rounded-full p-1 ${skillData?.status ? "bg-sage" : "bg-peach"}`}
                 >{skillData?.status ? "completed" : "pending"}
                 </span>
                 <div className="flex gap-3 ">
@@ -100,14 +100,12 @@ export default function Skill(){
                     <button 
                     className="cursor-pointer" 
                     onClick={()=>setEditTitleMode(true)}>
-                        <Pen width={17}/>
+                        <Pen width={17} className="text-text"/>
                     </button>}
                 </div>
                 <div className="detail flex flex-col gap-2">
-                            <span>Created at: {skillData?.createdAt}</span>
-                            {/* <span>Last updated {updateTime} ago</span> */}
-                        </div>
-
+                    <span>Created at: {skillData?.createdAt}</span>
+                </div>
                 <ProgressBar progress={skillData?.progress}/>
             </div>
             <div className="nav-bar bg-card-background shadow p-section flex justify-around">

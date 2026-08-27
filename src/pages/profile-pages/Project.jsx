@@ -15,7 +15,7 @@ export default function Project() {
     const { goal , project } = useParams()
     const [loading, setLoading] = useState(true)
 
-    //input states
+    //input states 
     const [description, setDescription] = useState("")
     const [reflectionTitle, setReflectionTitle] = useState("")
     const [reflectionContent, setReflectionContent] = useState("")
