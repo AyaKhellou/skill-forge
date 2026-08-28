@@ -34,9 +34,6 @@ export default function NavBar(){
         }
     },[profileInfo,user])
 
-    console.log(profileInfo);
-    
-
     useEffect(() => {
         if(darkMode){
             document.documentElement.classList.add("dark");

@@ -115,22 +115,22 @@ export default function StudySkills(){
     },[skills,user])
 
 const [currentSkillSession, setCurrentSkillSession] = useState(null)
-    useEffect(()=>{
-        if(!selectedOption) return;
-                onSnapshot(
-                    collection(db, "users", user.uid, "goals", selectedOption.goalId, "skills",selectedOption.id ,"studySessions"), (snapshot) => {
-                    const data = snapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    setCurrentSkillSession(data)
-                },
-                (error) => {
-                    console.error("Error fetching skills: ", error);
-                }
-                );
+useEffect(()=>{
+    if(!selectedOption) return;
+        onSnapshot(
+            collection(db, "users", user.uid, "goals", selectedOption.goalId, "skills",selectedOption.id ,"studySessions"), (snapshot) => {
+            const data = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setCurrentSkillSession(data)
+            },
+            (error) => {
+                console.error("Error fetching skills: ", error);
+            }
+        );
 
-    },[selectedOption,user])
+},[selectedOption,user])
     
 
     useEffect(()=>{

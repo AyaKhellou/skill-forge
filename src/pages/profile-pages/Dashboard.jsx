@@ -62,8 +62,8 @@ export default function Dashboard() {
                           collection(db, "users", user.uid, "goals", goal.id, "skills"), (snapshot) => {
                           const skillsList = snapshot.docs.map((doc) => ({
                               id: doc.id,
-                              totalTimeStudied:doc.data().totalTimeStudied,
-                              studySessionsCount:doc.data().studySessionsCount
+                              goalId:goal.id,
+                              ...doc.data()
                           }));
                           skillsByGoal[goal.id] = skillsList;
                           setSkills(Object.values(skillsByGoal).flat())
@@ -85,9 +85,6 @@ export default function Dashboard() {
               }
             fetchData();
           },[goals,user])
-          console.log(recentStudySession);
-        
-          
 
           const TotalStudySessionsTime = skills?.filter(skill=> skill.totalTimeStudied)
           .map(skill=>skill.totalTimeStudied)
@@ -97,6 +94,8 @@ export default function Dashboard() {
           .map(skill=> skill.studySessionsCount)
           .reduce((total,count)=> total + count,0)
 
+          const sortedSkills = skills?.filter(skill=> skill.LastStudied).sort((a,b)=> new Date(b.LastStudied) - new Date(a.LastStudied))
+          // console.log();
           
           
       
@@ -131,15 +130,21 @@ export default function Dashboard() {
         <Stats title="Study sessions" value={totalStudySessions}/>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-card-background shadow rounded p-4">
-          <h4>typeScript</h4>
-          <p className="detail">Goal: become a front-end dev</p>
-          <ProgressBar progress={40}/>
-          <Button classes="ml-auto w-full">
-            Continue Forging 
-            {`>>`}
-          </Button>
-        </div>
+        {
+          sortedSkills &&
+          sortedSkills.slice(0,1).map(skill=>(
+            <div className="bg-card-background shadow rounded p-4">
+              <h4>{skill.name}</h4>
+              <p className="detail">Goal: {goals?.find(goal=> goal.id === skill.goalId).goalName}</p>
+              <ProgressBar progress={40}/>
+              <Button onClick={()=> navigate(`/user/goals/${skill.goalId}/skills/${skill.id}`)} classes="ml-auto w-full">
+                Continue Forging 
+                {`>>`}
+              </Button>
+            </div>
+          ))
+        }
+
         <div className="bg-card-background shadow rounded p-4">
           <h4>Korean vocabulary</h4>
           <p className="detail">Goal: learn korean</p>
