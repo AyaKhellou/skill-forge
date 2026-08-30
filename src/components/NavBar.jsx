@@ -16,6 +16,7 @@ export default function NavBar(){
     const { user, loading } = useAuthContext();
 
     useEffect(()=>{
+        if(loading || !user?.uid) return;
         const unsubscribe = onSnapshot(
             doc(db,"users", user?.uid), 
             (snapshot)=>{
@@ -28,7 +29,7 @@ export default function NavBar(){
             console.error("Error fetching goal data: ", error);
         })
         return () => unsubscribe();
-    },[user])
+    },[user?.uid,loading])
 
     useEffect(() => {
         if(darkMode){

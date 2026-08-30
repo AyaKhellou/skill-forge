@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { db } from "../../firebase-config";
 import { useAuthContext } from "../../authContext";
 import Button from "../../components/Button";
-import { Camera, Pen } from "lucide-react";
+import { Camera, CircleAlert, Moon, Pen, Sun } from "lucide-react";
+import { deleteUser, updateProfile } from "firebase/auth";
 
 export default function Settings(){
     
@@ -21,8 +22,7 @@ export default function Settings(){
     const emailInputRef = useRef(null)
     const nameInputRef = useRef(null)
 
-    
-    
+
     useEffect(()=>{
         async function getprofileInfo() {
             onSnapshot(doc(db,"users", user?.uid), (doc)=>{
@@ -52,7 +52,9 @@ export default function Settings(){
             nameInputRef.current.focus()
         } 
     },[editNameMode])
-    async function updateProfile(dataToUpdate){
+
+    async function updateProfileData(dataToUpdate){
+
         try{
             await updateDoc(doc(db,"users", user.uid), dataToUpdate);
         }catch(err){
@@ -65,23 +67,42 @@ export default function Settings(){
         setEditNameMode(false)
 
         if(emailInput !== profileInfo.email){
-            updateProfile({email:emailInput})
+            updateProfileData({email:emailInput})
         }
         if(nameInput !== profileInfo.name){
-            updateProfile({name:nameInput})
+            updateProfileData({name:nameInput})
+
+            updateProfile(user, {
+            displayName: nameInput
+        }).then(() => {
+          // Profile updated successfully!
+            console.log("Profile updated!");
+            console.log("Display Name:", user.displayName);
+        }).catch((error) => {
+          // An error occurred
+            console.error("Error updating profile:", error);
+        });
+
         }
 
         if(imagePreview){
             async function changeImage(){
                 const newImageUrl =  await uploadImage(imagePath)
-                updateProfile({pfp:newImageUrl})
+                updateProfileData({pfp:newImageUrl})
+
+                updateProfile(user, {
+                photoURL: newImageUrl
+                    }).catch((error) => {
+                        console.error("Error updating profile:", error);
+                    });
+
                 setChangeImageMode(false)
                 setImagePreview(null)
             }
             changeImage()
         }
     }
-    console.log(user?.photoURL);
+    console.log(user);
     
 
     const [imagePath, setImagePath] = useState(null)
@@ -173,24 +194,31 @@ export default function Settings(){
                     </button>
                 </div>
 
-                <div className="bg-background shadow rounded w-full">
-                    <div className="flex items-center justify-between p-3">
+                <div className="w-full flex flex-col gap-4">
+                    
+                    <div className="bg-background shadow rounded flex items-center justify-between p-3">
                         <p className="detail">Email</p>
+                        <p className="">{profileInfo?.email}</p>
+                    </div>
+                    
+                    <div className="bg-background shadow rounded flex items-center justify-between p-3">
+                        <p className="detail">Mode</p>
                         <div className="flex gap-4">
-                        {
-                            editEmailMode ?
-                            <input 
-                            ref={emailInputRef}
-                            type="text" 
-                            value={emailInput} 
-                            onChange={e=>setEmailInput(e.target.value)} />
-                            :
-                            <p className="">{profileInfo?.email}</p>
-                        }
-                        <button className="cursor-pointer" onClick={()=>setEditEmailMode(prev=>!prev)}>
-                            <Pen width={17}/>
-                        </button>
+                            <p className="">
+                                {profileInfo?.mode}
+                            </p>
+                            {profileInfo?.mode === "dark mode" ? <Moon/> : <Sun/>}
                         </div>
+                    </div>
+
+                    <div className="bg-background shadow rounded flex items-center justify-between p-3">
+                        <p className="detail">delete account</p>
+                        <button 
+                        className="text-red flex items-center justify-center gap-2 cursor-pointer"
+                        onClick={()=> deleteUser(user)}>
+                            delete 
+                            <CircleAlert className="text-red!" width={17} height={17}/>
+                        </button>
                     </div>
                 </div>
                 <Button classes="self-end" onClick={saveChanges} disabled={editEmailMode || editNameMode || changeImageMode ? false : true}>save edits</Button>
