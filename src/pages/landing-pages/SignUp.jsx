@@ -5,10 +5,10 @@ import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { auth } from "../../firebase-config"
 import { createUserWithEmailAndPassword } from "firebase/auth"
-import { signInGoogle } from "../../firebase/signInGoogle"
+import { signInGoogle } from "../../services/signInGoogle"
 import ErrorMessage from "../../components/ErrorMessage"
 import { updateProfile } from "firebase/auth";
-import { createUserData } from "../../firebase/firestore"
+import { createUserData } from "../../services/firestore"
 
 
 export default function SignUp(){

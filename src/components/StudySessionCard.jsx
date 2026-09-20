@@ -1,5 +1,5 @@
 import { CalendarDays, Clock3 } from "lucide-react";
-import secondsToTime from "../firebase/function";
+import {secondsToTime} from "../services/function";
 
 export default function StudySessionCard({session}){
     return(

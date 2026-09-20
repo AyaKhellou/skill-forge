@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuthContext } from "../../authContext";
+import { useAuthContext } from "../../AuthContext";
 import { getUserGoals } from "../../firebase/firestore";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase-config";

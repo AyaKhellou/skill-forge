@@ -5,14 +5,14 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { doc,onSnapshot, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { db } from "../../firebase-config";
-import { useAuthContext } from "../../authContext";
+import { useAuthContext } from "../../AuthContext";
 import Loader from "../../components/Loader";
 import { nanoid } from "nanoid";
 
 export default function Project() {
     const [projectData, setProjectData] = useState(null)
     const { user } = useAuthContext()
-    const { goal , project } = useParams()
+    const { goalId , projectId } = useParams()
     const [loading, setLoading] = useState(true)
 
     //input states 
@@ -51,7 +51,7 @@ export default function Project() {
     
 
     const id = nanoid()
-    const docRef = doc(db, "users", user.uid , "goals",goal,"projects",project)
+    const docRef = doc(db, "users", user.uid , "goals",goalId,"projects",projectId)
     
     const currentDate = new Date();
     const dateNow = new Date();
@@ -98,7 +98,7 @@ export default function Project() {
         }),(error) => {
             console.error("Error fetching goal data: ", error);
         }
-    },[user,project,goal])
+    },[user,projectId,goalId])
     
     useEffect(()=>{
         if(projectData?.description !== undefined){
@@ -368,7 +368,7 @@ export default function Project() {
                     
                 </div>
 
-                <Link to={`/user/goals/${goal}`}  
+                <Link to={`/user/goals/${goalId}`}  
                 className="text-blue-500 flex items-center gap-2 mb-4">
                     <ArrowLeft width={17} />
                     <p>go back to goals</p>

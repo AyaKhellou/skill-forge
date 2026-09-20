@@ -5,8 +5,8 @@ export default function Logo(){
         <div className="flex items-center gap-2">
             <img src={icon} 
             alt="icon" 
-            className="w-10" />
-            <p className="text-light text-2xl font-bold mt-1">SkillForge</p>
+            className="w-10 max-sm:w-8" />
+            <p className="text-light text-2xl max-sm:text-xl font-bold mt-1">SkillForge</p>
         </div>
     )
 }

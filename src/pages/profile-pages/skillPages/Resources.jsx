@@ -17,11 +17,11 @@ export default function Resources(){
     const [resourceName, setResourceName] = useState("")
     const inputRef = useRef(null);
 
-    const { skill, goal, userId } = useOutletContext();
+    const { skillId, goalId, userId } = useOutletContext();
     const id = nanoid();
 
     useEffect(() => {
-        const resourcesRef = collection(db, "users", userId, "goals", goal, "skills", skill, "resources");
+        const resourcesRef = collection(db, "users", userId, "goals", goalId, "skills", skillId, "resources");
         onSnapshot(
             resourcesRef, (snapshot) => {
             const data = snapshot.docs.map((doc) => ({
@@ -35,12 +35,12 @@ export default function Resources(){
             setLoading(false);
         }
         );
-    }, [userId, goal, skill]);
+    }, [userId, goalId, skillId]);
 
     
     function addResource(){
         async function createResource() {
-            const docRef = doc(db, "users", userId, "goals",goal,"skills",skill,"resources",id);
+            const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"resources",id);
             try{
                 await setDoc(docRef, {
                     id:id,
@@ -70,7 +70,7 @@ export default function Resources(){
     }, [updateMode])
 
     function updateResource(){
-        const docRef = doc(db, "users", userId, "goals",goal,"skills",skill,"resources",updateMode.resourceId);
+        const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"resources",updateMode.resourceId);
 
         async function editData(){
             try{
@@ -91,7 +91,7 @@ export default function Resources(){
     }
 
     useEffect(()=>{
-        const docRef = doc(db, "users", userId , "goals",goal,"skills",skill)
+        const docRef = doc(db, "users", userId , "goals",goalId,"skills",skillId)
         async function updateSkill(){
         try{
             await updateDoc(docRef, {
@@ -103,7 +103,7 @@ export default function Resources(){
         }
         }
         updateSkill();
-    },[resources,goal,skill,userId])
+    },[resources,goalId,skillId,userId])
 
     if(loading){
         return(
@@ -120,8 +120,8 @@ export default function Resources(){
                     return <Resource 
                     key={resource.id} 
                     resource={resource}
-                    skillId={skill}
-                    goalId={goal}
+                    skillId={skillId}
+                    goalId={goalId}
                     userId={userId}
                     setUpdateMode={setUpdateMode}
                     />

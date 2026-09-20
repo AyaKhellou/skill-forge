@@ -1,78 +1,56 @@
 import Logo from "./Logo"
 import { Link, NavLink } from "react-router-dom"
-import { useAuthContext } from "../authContext";
-import { logout } from "../firebase/firestore"
+import { useAuthContext } from "../AuthContext";
+import { logout } from "../services/firestore"
 import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "../firebase-config";
+import useTheme from "../hooks/useTheme";
+import useProfileInfo from "../hooks/useProfileInfo";
+import errorIcon from "../assets/error.png"
+import Loader from "./Loader";
 
-export default function NavBar(){
-    const [darkMode, setDarkMode] = useState(null)
+export default function NavBar({ isVisible, setIsVisible }){
+
     const [menuIsHidden,setMenuIsHidden] = useState(true)
-    const [profileInfo, setProfileInfo] = useState(null)
     
     
     const { user, loading } = useAuthContext();
-
-    useEffect(()=>{
-        if(loading || !user?.uid) return;
-        const unsubscribe = onSnapshot(
-            doc(db,"users", user?.uid), 
-            (snapshot)=>{
-                if (snapshot.exists()) {
-                    const data = snapshot.data()
-                    setProfileInfo(data)
-                    setDarkMode(data.mode === "dark mode")
-                }
-            },(error) => {
-            console.error("Error fetching goal data: ", error);
-        })
-        return () => unsubscribe();
-    },[user?.uid,loading])
-
-    useEffect(() => {
-        if(darkMode){
-            document.documentElement.classList.add("dark");
-        }else{
-            document.documentElement.classList.remove("dark");
-        }
-    }, [darkMode]);
-
-    // useEffect(()=>{
-    //     if(!profileInfo) return;
-    //     if(profileInfo){
-    //         if (profileInfo.mode === "dark mode") {
-    //             setDarkMode(true)
-    //         }
-    //         if (profileInfo.mode === "light mode") {
-    //             setDarkMode(false)
-    //         }
-    //     }
-    // },[profileInfo,user])
-
     
+    const { profileInfo, error, loadingProfile } = useProfileInfo();    
 
-    async function switchMode(){
-        if(!user?.uid) return;
-
-        const newMode = darkMode ? "light mode" : "dark mode" 
-
-        try{
-            await updateDoc(doc(db, "users", user?.uid), {
-                mode: newMode
-            });
-            console.log("updated!");
-        }catch(err){
-            console.log(err);
-        }
-    }
-    
+    const { mode, switchMode } = useTheme();
 
     const activeStyles = "nav-link border border-primary!" ;
 
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    
+    useEffect(() => {
+        function handleResize() {
+            const currentWidth = window.innerWidth;
+            setWindowWidth(currentWidth);
+            if(currentWidth <= 767){
+                setIsVisible(false);
+            }else{
+                setIsVisible(true);
+            }
+            console.log('current width: ' ,currentWidth);
+            console.log('window width: ' ,windowWidth);
+            
+        }
+
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
     return(
-        <aside className="flex flex-col bg-background border-r border-border-color h-screen w-[20%] pt-section px-4">
+        <aside 
+        className={`
+        flex flex-col bg-background border-r border-border-color h-screen w-62.5 pt-section px-4 z-10 max-md:fixed max-sm:w-52
+        ${!isVisible ? 'hidden' : ''}
+        `}>
             <Logo />
             <nav className="w-full flex flex-col gap-2 mt-6">
                 <NavLink end
@@ -82,17 +60,26 @@ export default function NavBar(){
                 <NavLink to="goals"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Goals</NavLink>
-                <NavLink to="studysessions"
+                <NavLink to="study-sessions"
                 className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
                 >Study Sessions</NavLink>
             </nav>
             <div className="flex items-end gap-2 fixed bottom-6 left-4">
-                <div 
+                <button 
                 onClick={()=>setMenuIsHidden(prev=> !prev)}
                 className="rounded-[50%] w-10 h-10 flex items-center justify-center bg-accent cursor-pointer overflow-hidden"
                 >
-                <img src={profileInfo?.pfp} alt="user pfp" />
-                </div>
+                {   loadingProfile ?
+                    <Loader className="w-4 h-4"/>
+                    :
+                    profileInfo?.pfp === undefined || profileInfo?.pfp === null || error ?
+                    <div className="bg-accent">
+                        <img src={errorIcon} width={25} alt="error" />
+                    </div>
+                    :
+                    <img src={profileInfo?.pfp} alt="user pfp" />
+                }
+                </button>
                 {
                     !menuIsHidden &&
                     <div className="flex flex-col gap-2 bg-card-background p-3 rounded shadow">
@@ -100,12 +87,13 @@ export default function NavBar(){
                             <User width={17} className="text-accent!"/>
                             {loading ? "---" : user.displayName}
                         </p>
-                        <a className="text-accent! hover:bg-background px-2 py-1 rounded font-bold font-figtree cursor-pointer flex items-center gap-1" onClick={logout} >
+                        <button className="text-accent! hover:bg-background px-2 py-1 rounded font-bold font-figtree cursor-pointer flex items-center gap-1" onClick={logout} >
                             <LogOut width={17} className="text-accent!"/>
                             <p className="detail">Log Out</p>
-                        </a>
-                        <button className="detail hover:bg-background px-2 py-1 rounded flex gap-1 items-center cursor-pointer" onClick={switchMode}>
-                            {darkMode? 
+                        </button>
+                        <button className="detail hover:bg-background px-2 py-1 rounded flex gap-1 items-center cursor-pointer" 
+                        onClick={switchMode}>
+                            {mode === 'dark mode' ? 
                                 <Sun width={17} className=" text-accent!"/>
                                 :
                                 <Moon width={17} className=" text-accent!"/>

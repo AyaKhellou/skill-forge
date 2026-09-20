@@ -2,7 +2,7 @@ import { Link, NavLink, Outlet, useParams } from "react-router-dom"
 import { useState, useEffect } from "react";
 import Loader from "../../components/Loader";
 import { ArrowLeft, Check, Pen } from "lucide-react";
-import { useAuthContext } from "../../authContext";
+import { useAuthContext } from "../../AuthContext";
 import ProgressBar from "../../components/ProgressBar";
 import { doc,onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
@@ -12,7 +12,7 @@ export default function Skill(){
     const { user } = useAuthContext();
     const[loading, setLoading] = useState(true)
     const[skillData, setSkillData] = useState(null)
-    const { goal, skill } = useParams() 
+    const { goalId, skillId } = useParams() 
 
     const [skillTitle, setSkillTitle] = useState("")
     const [editTitleMode, setEditTitleMode] = useState(false)
@@ -20,7 +20,7 @@ export default function Skill(){
 
     const userId = user.uid;
     
-    const docRef = doc(db,"users", userId, "goals",goal,"skills",skill)
+    const docRef = doc(db,"users", userId, "goals",goalId,"skills",skillId)
 
     useEffect(()=>{
         async function fetchData() {
@@ -30,7 +30,7 @@ export default function Skill(){
             setLoading(false)
         }
         fetchData();
-    },[userId,goal,skill])
+    },[userId,goalId,skillId])
 
     useEffect(()=>{
         if(skillData?.name !== undefined){
@@ -66,7 +66,7 @@ export default function Skill(){
         <section className="page flex flex-col gap-3">
             <div 
             className="bg-card-background shadow rounded p-section">
-                <Link to={`/user/goals/${goal}`} className="text-blue-500 flex items-center gap-2 my-3">
+                <Link to={`/user/goals/${goalId}`} className="text-blue-500 flex items-center gap-2 my-3">
                     <ArrowLeft width={17}/>
                     <p>go back</p>
                 </Link>
@@ -112,9 +112,9 @@ export default function Skill(){
                 <NavLink to="" end className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Milestones</NavLink>
                 <NavLink to="notes" className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Notes</NavLink>
                 <NavLink to="resources" className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Resources</NavLink>
-                <NavLink to="skillStudySessions" className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Study Sessions</NavLink>
+                <NavLink to="study-sessions" className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Study Sessions</NavLink>
             </div>
-            <Outlet context={ {goal, skill, userId, skillData} }/>
+            <Outlet context={ {goalId, skillId, userId, skillData} }/>
         </section>
     )
     }

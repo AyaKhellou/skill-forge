@@ -1,7 +1,7 @@
 import { ArrowRight, Play} from "lucide-react";
-import { useAuthContext } from "../../authContext";
+import { useAuthContext } from "../../AuthContext";
 import Button from "../../components/Button";
-import { createUserData, getUserGoals } from "../../firebase/firestore";
+import { getUserGoals } from "../../services/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import Stats from "../../components/Stats";
 import ProgressBar from "../../components/ProgressBar";
@@ -9,29 +9,7 @@ import StudySessionCard from "../../components/StudySessionCard";
 import { useEffect, useState } from "react";
 import { collection, doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase-config";
-import secondsToTime from "../../firebase/function";
-
-
-  const stats = [
-    { label: "Current streak", value: "7 days", detail: "You are on a roll" },
-    { label: "Hours studied", value: "12.4h", detail: "This week" },
-    { label: "Completed lessons", value: "18", detail: "Across your paths" },
-  ];
-
-  const focusAreas = [
-    { title: "React fundamentals", progress: "82%" },
-    { title: "UI design systems", progress: "64%" },
-    { title: "JavaScript practice", progress: "91%" },
-  ];
-  const session = {
-    id:"IdGfnSBpmYo70jRQxPkq4",
-    focus:"sdfa",
-    note:"nno",
-    duration:831,
-    date:"8/24/2026"
-  }
-  
-
+import {secondsToTime} from "../../services/function";
 
 export default function Dashboard() {
   const dateNow = new Date();

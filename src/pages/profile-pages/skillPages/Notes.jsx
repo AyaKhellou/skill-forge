@@ -16,13 +16,13 @@ export default function Notes(){
     
     const contentInputRef = useRef(null);
 
-    const { skill, goal, userId } = useOutletContext();
+    const { skillId, goalId, userId } = useOutletContext();
     const now = new Date();
     const id = nanoid();
 
 
     useEffect(() => {
-        const notesRef = collection(db, "users", userId, "goals", goal, "skills", skill, "notes");
+        const notesRef = collection(db, "users", userId, "goals", goalId, "skills", skillId, "notes");
         onSnapshot(
             notesRef, (snapshot) => {
             const data = snapshot.docs.map((doc) => ({
@@ -37,11 +37,11 @@ export default function Notes(){
             setLoading(false);
         }
         );
-    }, [userId, goal, skill]);
+    }, [userId, goalId, skillId]);
 
     function saveNote(){
         async function createNote() {
-            const docRef = doc(db, "users", userId, "goals",goal,"skills",skill,"notes",id);
+            const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"notes",id);
             try{
                 await setDoc(docRef, {
                     id:id,
@@ -70,7 +70,7 @@ export default function Notes(){
     }, [updateMode])
 
     function updateNote(){
-        const docRef = doc(db, "users", userId, "goals",goal,"skills",skill,"notes",updateMode.noteId);
+        const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"notes",updateMode.noteId);
 
         async function editNote(){
             try{
@@ -89,7 +89,7 @@ export default function Notes(){
     }
 
     useEffect(()=>{
-        const docRef = doc(db, "users", userId , "goals",goal,"skills",skill)
+        const docRef = doc(db, "users", userId , "goals",goalId,"skills",skillId)
         async function updateSkill(){
         try{
             await updateDoc(docRef, {
@@ -101,7 +101,7 @@ export default function Notes(){
         }
         }
         updateSkill();
-    },[notes,goal,skill,userId])
+    },[notes,goalId,skillId,userId])
 
     if(loading){
         return(
@@ -146,8 +146,8 @@ export default function Notes(){
                     return <Note 
                     key={note.id}
                     noteId={note.id}
-                    skillId={skill}
-                    goalId={goal}
+                    skillId={skillId}
+                    goalId={goalId}
                     userId={userId}
                     title={note.title} 
                     timeCreated={note.createdAt} 

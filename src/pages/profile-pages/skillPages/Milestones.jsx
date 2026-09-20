@@ -14,12 +14,12 @@ export default function Milestones(){
     const [loading, setLoading] = useState(true)
     const [newMilestone, setNewMilestone] = useState("")
     
-    let { skill, goal, userId } = useOutletContext();
+    let { skillId, goalId, userId } = useOutletContext();
     const now = new Date();
     const id = nanoid();
     
     useEffect(() => {
-        const milestonesRef = collection(db, "users", userId, "goals", goal, "skills", skill, "milestones");
+        const milestonesRef = collection(db, "users", userId, "goals", goalId, "skills", skillId, "milestones");
         onSnapshot(
             milestonesRef, (snapshot) => {
             const data = snapshot.docs.map((doc) => ({
@@ -35,7 +35,7 @@ export default function Milestones(){
             setLoading(false);
         }
         );
-    }, [userId, goal, skill]);
+    }, [userId, goalId, skillId]);
     
 
     function addMilestone(){
@@ -44,7 +44,7 @@ export default function Milestones(){
 
     function saveMilestone(){
         async function createMilestone() {
-            const docRef = doc(db, "users", userId, "goals",goal,"skills",skill,"milestones",id);
+            const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"milestones",id);
             try{
                 await setDoc(docRef, {
                     id:id,
@@ -62,7 +62,7 @@ export default function Milestones(){
     }
 
     useEffect(()=>{
-        const docRef = doc(db, "users", userId , "goals",goal,"skills",skill)
+        const docRef = doc(db, "users", userId , "goals",goalId,"skills",skillId)
         const progress = Math.ceil(milestones?.filter(milestone=> milestone.status === true).length * 100 / milestones?.length)
         async function updateSkill(){
         try{
@@ -77,7 +77,7 @@ export default function Milestones(){
         }
         }
         updateSkill();
-    },[milestones,goal,skill,userId])
+    },[milestones,goalId,skillId,userId])
 
     
     if(loading){
@@ -97,8 +97,8 @@ export default function Milestones(){
                     checkVal={milestone.status}
                     milestoneVal={milestone.name}
                     userId={userId}
-                    goalId={goal}
-                    skillId={skill}
+                    goalId={goalId}
+                    skillId={skillId}
                     milestoneId={milestone.id}
                     />
                 })

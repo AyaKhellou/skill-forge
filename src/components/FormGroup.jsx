@@ -10,7 +10,7 @@ export default function FormGroup({ label, type, name, id, value, onChange }) {
             name={name} 
             id={id}
             placeholder={label}
-            className="bg-white border border-detail rounded-md p-2"
+            className="bg-white border border-detail rounded-md p-2 outline-none focus:border-accent main-transition w-full"
             value={value}
             onChange={onChange}
             />

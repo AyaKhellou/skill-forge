@@ -40,7 +40,9 @@
 svg{
     @apply text-text
 }
-
+.main-transition{
+    @apply transition-colors duration-300 ease-linear;
+}
 body{
     @apply bg-background ;
 }
@@ -54,13 +56,13 @@ h1,h2,h3{
     @apply font-archivo;
 }
 h2{
-    @apply text-3xl font-bold mb-4 text-text;
+    @apply text-xl sm:text-2xl md:text-3xl font-bold mb-4 text-text ;
 }
 h3{
-    @apply text-xl font-bold mb-4 text-text;
+    @apply text-lg sm:text-xl font-bold mb-4 text-text;
 }
 h4{
-    @apply text-lg font-bold mb-4 text-text;
+    @apply text-normal sm:text-lg font-bold mb-4 text-text;
 }
 .text-error{
     @apply text-red text-sm mt-2 self-start;
@@ -69,10 +71,10 @@ nav a{
     @apply bg-card-background font-figtree p-4 border border-transparent rounded text-base font-semibold hover:border-border-color transition-colors duration-300 ease-linear ;
 }
 .detail{
-    @apply text-detail font-semibold tracking-wider text-sm;
+    @apply text-[12px] sm:text-sm text-detail font-semibold tracking-wider ;
 }
 .page{
-    @apply flex-1 h-screen overflow-y-auto bg-background p-section;
+    @apply flex-1 h-screen overflow-y-auto bg-background p-2 sm:p-4 md:p-section;
 }
 .project-card{
     @apply bg-card-background shadow rounded p-section;
@@ -83,14 +85,31 @@ nav a{
 .tag{
     @apply inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold text-text;
 }
-/* .project-link{
-    @apply ;
-} */
-/* .project-image{
-    @apply ;
-} */
-.skill:not(:last-child){
-    @apply relative mb-6.75 after:bg-accent after:w-1 after:h-7 after:absolute after:-bottom-7 after:right-1/2;
+
+.p-section{
+    @apply p-2 sm:p-4 md:p-section;
+}
+
+
+/* alert custom */
+
+.alert {
+    @apply bg-card-background text-text shadow;
+}
+
+.alert-title {
+    @apply text-2xl font-bold mb-4 text-text;
+}
+
+.alert-button {
+    @apply bg-primary text-background px-4 py-2 rounded-md font-bold cursor-pointer border-2 border-primary hover:bg-background hover:text-primary hover:border-primary transition-all duration-300 shadow;
+}
+
+.cancel-button{
+    @apply bg-red text-background px-4 py-2 rounded-md font-bold cursor-pointer border-2 border-red hover:bg-background hover:text-red hover:border-red transition-all duration-300 shadow;
+}
+.confirm-button{
+    @apply bg-green-400 text-background px-4 py-2 rounded-md font-bold cursor-pointer border-2 border-green-400 hover:bg-background hover:text-green-400 hover:border-green-400 transition-all duration-300 shadow;
 }
 /* Loader style */
 

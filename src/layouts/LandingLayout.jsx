@@ -1,6 +1,6 @@
 import { Outlet, Navigate } from "react-router-dom"
 import LandingPageHeader from "../components/LandingPageHeader"
-import { useAuthContext } from "../authContext"
+import { useAuthContext } from "../AuthContext"
 
 export default function LandingLayout(){
     const { user } = useAuthContext();

@@ -6,22 +6,20 @@ import { collection, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase-config";
 import Loader from "../../../components/Loader";
 import Stats from "../../../components/Stats";
-import secondsToTime from "../../../firebase/function";
+import {secondsToTime} from "../../../services/function";
 import StudySessionCard from "../../../components/StudySessionCard";
 
 
 export default function SkillStudySessions() {
-    const { skill, goal, userId, skillData } = useOutletContext();
+    const { skillId, goalId, userId, skillData } = useOutletContext();
 
-    console.log(skill);
-    
     const [studySessions, setStudySessionsRef] = useState(null)
     const [loading, setLoading] = useState(true)
     
     const totalSeconds = studySessions?.reduce((total, session) => total + session.duration, 0);
     
     useEffect(() => {
-        const studySessionsRef = collection(db, "users", userId, "goals", goal, "skills", skill, "studySessions");
+        const studySessionsRef = collection(db, "users", userId, "goals", goalId, "skills", skillId, "studySessions");
         onSnapshot(
             studySessionsRef, (snapshot) => {
             const data = snapshot.docs.map((doc) => ({
@@ -37,12 +35,12 @@ export default function SkillStudySessions() {
             setLoading(false);
         }
         );
-    }, [userId, goal, skill]);
+    }, [userId, goalId, skillId]);
 
     useEffect(()=>{
         async function updateSkill(){
             try{
-                await updateDoc(doc(db,"users", userId, "goals",goal,"skills",skill), {
+                await updateDoc(doc(db,"users", userId, "goals",goalId,"skills",skillId), {
                     totalTimeStudied:totalSeconds
                 });
             }catch(err){
@@ -50,7 +48,7 @@ export default function SkillStudySessions() {
             }
         }
         updateSkill()
-    },[userId, goal, skill, totalSeconds])
+    },[userId, goalId, skillId, totalSeconds])
     
 
     if(loading){
@@ -69,7 +67,7 @@ export default function SkillStudySessions() {
                 <Stats title="Last studied" value={skillData?.LastStudied} className="bg-background!" />
             </div>
             <Button primary={true} classes="self-end">
-                <Link to={`/user/studysessions?skillId=${skill}`} className="flex items-center gap-2 ">
+                <Link to={`/user/study-sessions?skillId=${skillId}`} className="flex items-center gap-2 ">
                     <Play size={17} fill="currentColor" />
                     Start study session
                 </Link>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import DropDown from "../../components/DropDown";
-import { getUserGoals } from "../../firebase/firestore";
-import { useAuthContext } from "../../authContext";
+import { getUserGoals } from "../../services/firestore";
+import { useAuthContext } from "../../AuthContext";
 import { collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import { nanoid } from "nanoid";

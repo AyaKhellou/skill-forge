@@ -1,7 +1,7 @@
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import { db } from "../../firebase-config";
-import { useAuthContext } from "../../authContext";
+import { useAuthContext } from "../../AuthContext";
 import Button from "../../components/Button";
 import { Camera, CircleAlert, Moon, Pen, Sun } from "lucide-react";
 import { deleteUser, updateProfile } from "firebase/auth";

@@ -1,210 +1,88 @@
 import { Link, useParams } from "react-router-dom"
-import { useAuthContext } from "../../authContext"
 import { useState, useEffect } from "react";
 import ProgressBar from "../../components/ProgressBar"
-import Loader from "../../components/Loader";
 import Button from "../../components/Button"
 import { ArrowLeft, Check } from "lucide-react";
 import DetailedSkillCard from "../../components/DetailedSkillCard";
-import { collection, doc,onSnapshot,setDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase-config";
-import { nanoid } from "nanoid";
 import ProjectCard from "../../components/ProjectCard";
+import useGoal from "../../hooks/useGoal";
+import useSkills from "../../hooks/useSkills";
+import useProjects from "../../hooks/useProjects";
+import {secondsToTime} from "../../services/function";
+import ErrorMessage from "../../components/ErrorMessage";
 
 export default function Goal(){
-    const { goal } = useParams();
-    const { user } = useAuthContext();
-    const[goalData,setGoalData] = useState(null)
-    const [skills, setSkills] = useState(null)
+    const { goalId } = useParams();
+    const { goalData, loadingGoal, error: goalError, updateGoalData } = useGoal(goalId);
+    const { skills, loadingSkills, error: skillsError, addSkill } = useSkills(goalId);
+    const { projects, loadingProjects, error: projectsError, addProject } = useProjects(goalId);
+
+    // Skills states:
     const [newSkillName, setNewSkillName] = useState("")
-    const id = nanoid();
     // Projects states:
-    const [projects, setProjects] = useState(null)
     const [imagePath, setImagePath] = useState(null);
     const [projectName, setProjectName] = useState("");
     const [projectDesc, setProjectDesc] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
-    const currentDate = new Date();
     const totalSeconds = skills?.reduce((total, skill) => total + (skill.totalTimeStudied ?? 0) , 0);
-    // console.log(totalSeconds);
-    
-    function secondsToTime(seconds){
-        
-    
-        const totalMinutes = Math.floor(seconds / 60);
-        
-        const totalHours = Math.floor(totalMinutes / 60);
-    
-        const remainingSeconds = seconds % 60;
 
-        const remainingMinutes = totalMinutes % 60;
+    const completedSkills =
+    skills?.filter(skill => skill.status).length ?? 0;
 
-        
-        return`${totalHours <= 9 ? "0"+totalHours : totalHours}:${remainingMinutes <= 9 ? "0"+remainingMinutes : remainingMinutes}:${remainingSeconds <= 9 ? "0"+remainingSeconds : remainingSeconds}`;
-    }
-
-    const progress  =
-        skills?.length === 0 ?
-        0:
-        Math.round((100 * skills?.filter(skill=> skill.status === true).length) / skills?.length)
-
-        console.log(progress);
-        const goalRef = doc(db,"users", user.uid, "goals",goal);
+    const progress =
+    skills?.length
+        ? Math.round((completedSkills / skills.length) * 100)
+        : 0;
 
         useEffect(()=>{
-            async function updateGoal(){
+            async function updateProgress() {
                 try{
-                    await updateDoc(goalRef, {
+                    await updateGoalData({
                         status: progress === 100 ? "completed" : "pending",
-                        progress:progress
+                        progress: progress
                     });
                 }catch(err){
                     console.log(err);
                 }
             }
-                updateGoal()
-        },[progress,goalRef])
+            updateProgress();
+        },[progress])
+
+
         
-    useEffect(() => {
-        onSnapshot(goalRef, (doc)=>{
-            setGoalData(doc.data())
-        }),(error) => {
-            console.error("Error fetching goal data: ", error);
-        }
-        
-        const skillsRef = collection(db, "users", user.uid, "goals", goal, "skills");
-        onSnapshot(
-            skillsRef, (snapshot) => {
-            const data = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            setSkills(data);
-        },
-        (error) => {
-            console.error("Error fetching skills: ", error);
-        }
-        );
-        
-
-        const projectsRef = collection(db, "users", user.uid, "goals", goal, "projects");
-        onSnapshot(
-            projectsRef, (snapshot) => {
-            const data = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            setProjects(data);
-        },
-        (error) => {
-            console.error("Error fetching projects: ", error);
-        }
-        );
-
-
-
-        }, [user, goal]);
-
-
-    const loading = !goalData || !skills || !projects;
-
-    function addSkill(){
+        async function addNewSkill(){
         if(!newSkillName) return;
-        const newSkill = {
-            id:id,
-            name: newSkillName,
-            status: false,
-            createdAt:currentDate.toLocaleDateString()
-        }
-        async function createSkill() {
-            const docRef = doc(db, "users", user.uid, "goals",goal,"skills",id);
             try{
-                await setDoc(docRef, newSkill);
-                console.log("skill created!!!!!!!");
-                
+                await addSkill(newSkillName);
+                setNewSkillName("");
             } catch(err){
                 console.log(err);
-                
             }
-        }
-        createSkill()
-        setNewSkillName("")
     }
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-    
         if (file) {
             setImagePath(file);
             setImagePreview(URL.createObjectURL(file));
         }
     }
     
-    async function uploadImage(file){
-
-        const formData = new FormData();
-        
-        formData.append("file", file);
-        formData.append(
-            "upload_preset",
-            "skillforge_images"
-        );
-        
-        const response = await fetch(
-            `https://api.cloudinary.com/v1_1/mi3zklxx/image/upload`,
-            {
-                method: "POST",
-                body: formData,
-            }
-        );
-        
-        if (!response.ok) {
-            throw new Error("Image upload failed");
-        }
-        
-        const data = await response.json();
-        
-        return data.secure_url;
-    };
-    //----------------------------------------------------------------------
-
-
-    function addNewProject(){
+    
+    async function addNewProject(){
         if(!imagePath || !projectName || !projectDesc) return;
-
-        async function createProject() {
-            const docRef = doc(db, "users", user.uid, "goals",goal,"projects",id);
-            try{
-                const imageUrl =  await uploadImage(imagePath)
-                const newProject = {
-                    id:id,
-                    imageUrl:imageUrl,
-                    name: projectName,
-                    briefDescription:projectDesc,
-                    createdAt:currentDate.toLocaleDateString(),
-                }
-
-                await setDoc(docRef, newProject);
-                console.log("project created!!!!!!!");
-                
-            } catch(err){
-                console.log(err);
-            }
+        try{
+            await addProject(imagePath, projectName, projectDesc);
+            setImagePath(null)
+            setImagePreview(null)
+            setProjectName("")
+            setProjectDesc("")
+        } catch(err){
+            console.log(err);
         }
-        createProject()
-        setImagePath(null)
-        setImagePreview(null)
-        setProjectName("")
-        setProjectDesc("")
     }
-
-    if(loading){
-        return (
-            <section className="page">
-                <Loader/>
-            </section>
-        )
-    }
+    
     return (
         <section className="page flex flex-col gap-3">
             <div 
@@ -213,63 +91,55 @@ export default function Goal(){
                     <ArrowLeft width={17}/>
                     <p>go back to goals</p>
                 </Link>
-                <h2>{goalData?.goalName}</h2>
+                <h2>{loadingGoal? "Loading..." : goalError ? goalError.message : goalData?.goalName}</h2>
                 <ProgressBar progress={progress}/>
                 <div className="details flex justify-between items-center">
                     <span className="detail font-bold!">
-                        <p>{skills?.filter(skill=>skill.status === true).length}/{skills?.length} skills . {progress} %</p>
-                        <p className="pt-2">{projects?.length} projects</p>
+                        <p>
+                            {loadingSkills? "..." : skills?.filter(skill=>skill.status === true).length}/{skills?.length} skills . {progress} %
+                        </p>
+                        <p className="pt-2">{loadingProjects? "..." : projects?.length} projects</p>
                     </span>
                     <span className="detail study-hours">total study time {secondsToTime(totalSeconds)}</span>
                 </div>
             </div>
             <div className="rounded flex flex-col bg-card-background shadow p-section">
                 <h3 className="text-2xl font-bold mb-4 text-text">skills</h3>
-                <div className="skills">
-                    {skills?.map(skill=>
-                        <DetailedSkillCard 
-                        key={skill.id}
-                        id={skill.id}
-                        name={skill.name}
-                        status={skill.status}
-                        progress={skill.progress}
-                        skill={skill}
-                        userId={user.uid}
-                        goalId={goal}
-                        />
-                    )}
-                </div>
-                <div className="bg-background rounded my-2 p-3 shadow flex items-center justify-between gap-4">
+                <div className="bg-background rounded my-2 p-3 shadow flex flex-col sm:flex-row items-center justify-between gap-3">
                     <input 
                     type="text" 
                     name="skillName" 
                     placeholder="enter skill name" 
-                    className="outline-none"
+                    className="outline-none w-full"
                     value={newSkillName}
                     onChange={(e) => setNewSkillName(e.target.value)}
                     />
                     <Button 
-                    onClick={addSkill}
-                    classes="">
+                    onClick={addNewSkill}
+                    classes="w-full sm:w-1/3">
                         add new skill
                     </Button>
+                </div>
+                <div className="skills">
+                    {
+                        loadingSkills? <p>Loading skills...</p> 
+                        : skills?.length === 0 || !skills ? <p>No skills added yet.</p> 
+                        : skillsError ? <ErrorMessage message={skillsError.message} /> 
+                        : skills?.map(skill=>
+                            <DetailedSkillCard 
+                            key={skill.id}
+                            skill={skill}
+                            goalId={goalId}
+                            />
+                        ) 
+                    }                   
                 </div>
             </div>
             {/* project: */}
             <div className="rounded flex flex-col bg-card-background shadow p-section">
                 <h3 className="text-2xl font-bold mb-4 text-text">Projects</h3>
-                <div className="projects flex flex-wrap gap-3">
-                    {
-                        projects?.map(project =>{
-                            return <ProjectCard 
-                            key={project.id} 
-                            project={project}
-                            userId={user.uid}
-                            goalId={goal}/>
-                        })
-                    }
-
-                    <div className="project-form bg-background rounded my-2 p-3 shadow w-[30%]">
+                <div className="projects grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="project-form bg-background rounded my-2 p-3 shadow w-full">
                         <div className="image-box w-full aspect-square flex flex-col justify-center items-center">
                             <input 
                             type="file" 
@@ -318,6 +188,17 @@ export default function Goal(){
                             </Button>
                         </div>
                     </div>
+                    {
+                        loadingProjects? <p>Loading projects...</p> 
+                        : projects?.length === 0 || !projects ? <p>No projects added yet.</p>
+                        : projectsError ? <ErrorMessage message={projectsError.message} /> 
+                        : projects?.map(project =>{
+                            return <ProjectCard 
+                            key={project.id} 
+                            project={project}
+                            goalId={goalId}/>
+                        })
+                    }
                 </div>
             </div>
         </section>
