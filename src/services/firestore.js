@@ -90,6 +90,12 @@ export function getGoalSkills(userId, goalId , onData, onError) {
 export async function createSkill(userId, goalId, id, newSkill) {
     await setDoc(doc(db, "users", userId, "goals",goalId,"skills",id), newSkill);
 }
+// delete skill
+export async function deleteSkill(userId, goalId, skillId){
+    const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId);
+    await deleteDoc(docRef);
+}
+
 //-------------
 // get projects in a goal
 export function getGoalProjects(userId, goalId , onData, onError) {
@@ -107,6 +113,11 @@ export function getGoalProjects(userId, goalId , onData, onError) {
 //create project
 export async function createProject(userId, goalId, id, newProject) {
     await setDoc(doc(db, "users", userId, "goals",goalId,"projects",id), newProject);
+}
+// delete project
+export async function deleteProject(userId, goalId, projectId){
+    const docRef = doc(db, "users", userId, "goals",goalId,"projects",projectId);
+    await deleteDoc(docRef);
 }
 
 //useGoal only: get goal data + update goals + delete goal 
@@ -210,13 +221,13 @@ try{
 // }
 // }
 
-export async function deleteSkill(userId, goalId, skillId){
-    try{
-        await deleteDoc(doc(db, "users", userId, "goals",goalId,"skills",skillId));
-    }catch(err){
-        console.log(err);
-    }
-}
+// export async function deleteSkill(userId, goalId, skillId){
+//     try{
+//         await deleteDoc(doc(db, "users", userId, "goals",goalId,"skills",skillId));
+//     }catch(err){
+//         console.log(err);
+//     }
+// }
 
 
 export function logout(){

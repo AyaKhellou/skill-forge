@@ -1,28 +1,16 @@
 import ProgressBar from "../components/ProgressBar"
-import { useState, useEffect } from "react"
-import { useAuthContext } from "../AuthContext"
+import useSkills from "../hooks/useSkills"
+import useGoal from "../hooks/useGoal"
 import { Link } from "react-router-dom"
-import { deleteGoal, getUserskills } from "../services/firestore"
 import { Trash } from "lucide-react"
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
-
-
-
 export default function GoalCard({ goalName, goalId }){
-    const [skills,setSkills] = useState(null)
-    const {user} = useAuthContext();
-    const userId = user?.uid;
+    const { skills } = useSkills(goalId);
+    const { deleteGoalData } = useGoal(goalId);
     const MySwal = withReactContent(Swal);
 
-    useEffect(()=>{
-        if(!userId) return;
-        if(userId){
-            getUserskills(userId,goalId)
-            .then(skills => setSkills(skills))
-        }
-    },[goalId,userId])
 
     const progress  = 
         skills?.length === 0 ?
@@ -48,12 +36,10 @@ export default function GoalCard({ goalName, goalId }){
         if (!result.isConfirmed) return;
 
         try {
-            await deleteGoal(userId, goalId);
+            await deleteGoalData();
         } catch (error) {
             console.error("Error deleting goal:", error);
         }
-
-    
     }
 
     return(

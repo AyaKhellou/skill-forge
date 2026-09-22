@@ -1,30 +1,42 @@
 import { Link } from "react-router-dom"
 import ProgressBar from "./ProgressBar"
-import { deleteDoc, doc } from "firebase/firestore";
-import { db } from "../firebase-config";
+import useSkill from "../hooks/useSkill";
 import { Trash } from "lucide-react";
 import { secondsToTime } from "../services/function";
-import { useAuthContext } from "../AuthContext";
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
 export default function DetailedSkillCard({skill, goalId}){
 
-    const { user } = useAuthContext();
-    const userId = user?.uid;
+    const { deleteSkillData } = useSkill(goalId, skill.id);
+    const MySwal = withReactContent(Swal);
 
-    function deleteSkill(){
-        const docRef = doc(db, "users", userId, "goals",goalId, "skills",skill.id);
+    async function deleteSkill(){
 
-        async function deleteData(){
-            try{
-                await deleteDoc(docRef);
-            }catch(err){
-                console.log(err);
-            }
+        const result = await MySwal.fire({
+            icon: "warning",
+            title: "Are you sure?",
+            text: "You will not be able to recover this skill!",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "No, cancel!",
+            customClass: {
+                popup: "alert",
+                title: "alert-title",
+                confirmButton: "confirm-button",
+                cancelButton: "cancel-button",
+            },
+        });
+        if (!result.isConfirmed) return;
+        try{
+            await deleteSkillData();
+        }catch(err){
+            console.log(err);
         }
-        deleteData()
     }
 
     return(
-        <div className="bg-background rounded my-3 p-3 shadow flex items-center gap-4">
+        <div className="bg-background rounded p-3 shadow flex items-center gap-4 w-full">
             <div className="w-full relative">
                 <div className="flex items-center gap-4">
                     <button 
@@ -50,7 +62,6 @@ export default function DetailedSkillCard({skill, goalId}){
                     <span>{skill?.milestonesCount ?? 0} {skill?.milestonesCount === 1 ? "milestone" : "milestones"}</span>
                     <span>{skill?.totalTimeStudied ? "studied for " + secondsToTime(skill.totalTimeStudied) : "not studied yet"} </span>
                 </div>
-                
             </div>
         </div>
     )

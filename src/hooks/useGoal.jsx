@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuthContext } from "../AuthContext";
-import { getGoal, updateGoal } from "../services/firestore";
+import { getGoal, updateGoal, deleteGoal } from "../services/firestore";
 
 export default function useGoal(goalId) {
     const [goalData, setGoalData] = useState(null);
@@ -35,5 +35,11 @@ export default function useGoal(goalId) {
         await updateGoal(user.uid, goalId, dataToUpdate);
     }
 
-    return { goalData, loadingGoal, error, updateGoalData };
+    async function deleteGoalData() {
+        if (!user?.uid || !goalId) return;
+        await deleteGoal(user.uid, goalId);
+    }
+
+
+    return { goalData, loadingGoal, error, updateGoalData, deleteGoalData };
 }

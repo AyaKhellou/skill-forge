@@ -46,6 +46,7 @@ export default function useGoals() {
         await createGoal(user.uid, goal, goalId)
         return goal;
     }
+    
 
     return { goals, loadingGoals, error , addGoal };
 }

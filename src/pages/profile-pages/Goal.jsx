@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom"
 import { useState, useEffect } from "react";
 import ProgressBar from "../../components/ProgressBar"
 import Button from "../../components/Button"
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, Pen } from "lucide-react";
 import DetailedSkillCard from "../../components/DetailedSkillCard";
 import ProjectCard from "../../components/ProjectCard";
 import useGoal from "../../hooks/useGoal";
@@ -11,12 +11,24 @@ import useProjects from "../../hooks/useProjects";
 import {secondsToTime} from "../../services/function";
 import ErrorMessage from "../../components/ErrorMessage";
 
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
 export default function Goal(){
     const { goalId } = useParams();
     const { goalData, loadingGoal, error: goalError, updateGoalData } = useGoal(goalId);
     const { skills, loadingSkills, error: skillsError, addSkill } = useSkills(goalId);
     const { projects, loadingProjects, error: projectsError, addProject } = useProjects(goalId);
+    
+    //goal states
+    const [editTitleMode, setEditTitleMode] = useState(false);
+    const [goalTitle, setGoalTitle] = useState("");
 
+    useEffect(() => {
+        if(goalData){
+            setGoalTitle(goalData.goalName)
+        }
+    }, [goalData]);
     // Skills states:
     const [newSkillName, setNewSkillName] = useState("")
     // Projects states:
@@ -25,6 +37,9 @@ export default function Goal(){
     const [projectDesc, setProjectDesc] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
     const totalSeconds = skills?.reduce((total, skill) => total + (skill.totalTimeStudied ?? 0) , 0);
+
+    const MySwal = withReactContent(Swal);
+    
 
     const completedSkills =
     skills?.filter(skill => skill.status).length ?? 0;
@@ -48,16 +63,42 @@ export default function Goal(){
             updateProgress();
         },[progress])
 
+    async function editTitle(){
+        console.log("editing...");
 
+        try{
+            await updateGoalData({
+                goalName: goalTitle
+            });
+        }catch(err){
+            console.log(err);
+        }
         
-        async function addNewSkill(){
-        if(!newSkillName) return;
-            try{
-                await addSkill(newSkillName);
-                setNewSkillName("");
-            } catch(err){
-                console.log(err);
-            }
+        setEditTitleMode(false)
+    }
+        
+    async function addNewSkill(){
+        const skillName = newSkillName.trim();
+        if(!skillName) {
+            MySwal.fire({
+                icon: "warning",
+                title: <p>Oops!</p>,
+                text: "Please enter a skill name.",
+                confirmButtonText: "Okay",
+                customClass: {
+                    popup: "alert",
+                    title: "alert-title",
+                    confirmButton: "alert-button",
+                },
+            });
+            return;
+        }
+        try{
+            await addSkill(skillName);
+            setNewSkillName("");
+        } catch(err){
+            console.log(err);
+        }
     }
 
 
@@ -71,9 +112,24 @@ export default function Goal(){
     
     
     async function addNewProject(){
-        if(!imagePath || !projectName || !projectDesc) return;
+        const trimmedProjectName = projectName.trim();
+        const trimmedProjectDesc = projectDesc.trim();
+        if(!imagePath || !trimmedProjectName || !trimmedProjectDesc){
+            MySwal.fire({
+                icon: "warning",
+                title: <p>Oops!</p>,
+                text: "Please fill out all project fields.",
+                confirmButtonText: "Okay",
+                customClass: {
+                    popup: "alert",
+                    title: "alert-title",
+                    confirmButton: "alert-button",
+                },
+            });
+            return;
+        }
         try{
-            await addProject(imagePath, projectName, projectDesc);
+            await addProject(imagePath, trimmedProjectName, trimmedProjectDesc);
             setImagePath(null)
             setImagePreview(null)
             setProjectName("")
@@ -91,7 +147,37 @@ export default function Goal(){
                     <ArrowLeft width={17}/>
                     <p>go back to goals</p>
                 </Link>
-                <h2>{loadingGoal? "Loading..." : goalError ? goalError.message : goalData?.goalName}</h2>
+                <div className="flex gap-3 ">
+                    {
+                        editTitleMode?
+                        <input 
+                        type="text" 
+                        className="text-3xl font-bold text-text outline-none w-55"
+                        value={goalTitle}
+                        onChange={(e)=> setGoalTitle(e.target.value)}
+                        />
+                        :
+                        <h2 className="mb-0!">
+                            {loadingGoal? "Loading..." : goalError ? goalError.message : goalData?.goalName}
+                        </h2>
+                    }
+                    {
+                        editTitleMode?
+                        <button 
+                        className="cursor-pointer" 
+                        onClick={editTitle}
+                        >
+                            <Check width={17}/>
+                        </button>
+                        :
+                        <button 
+                        className="cursor-pointer" 
+                        onClick={()=>setEditTitleMode(true)}>
+                            <Pen width={17} className="text-text"/>
+                        </button>
+                    }
+
+                </div>
                 <ProgressBar progress={progress}/>
                 <div className="details flex justify-between items-center">
                     <span className="detail font-bold!">
@@ -105,26 +191,26 @@ export default function Goal(){
             </div>
             <div className="rounded flex flex-col bg-card-background shadow p-section">
                 <h3 className="text-2xl font-bold mb-4 text-text">skills</h3>
-                <div className="bg-background rounded my-2 p-3 shadow flex flex-col sm:flex-row items-center justify-between gap-3">
+                <form className="bg-background rounded my-2 p-3 shadow flex flex-col sm:flex-row items-center justify-between gap-3">
                     <input 
                     type="text" 
                     name="skillName" 
                     placeholder="enter skill name" 
-                    className="outline-none w-full"
+                    className="outline-none w-full sm:flex-1 md:flex-2"
                     value={newSkillName}
                     onChange={(e) => setNewSkillName(e.target.value)}
                     />
                     <Button 
                     onClick={addNewSkill}
-                    classes="w-full sm:w-1/3">
+                    classes="w-full sm:flex-1 ">
                         add new skill
                     </Button>
-                </div>
-                <div className="skills">
+                </form>
+                <div className="skills flex flex-col gap-3 justify-center items-center mt-3">
                     {
                         loadingSkills? <p>Loading skills...</p> 
-                        : skills?.length === 0 || !skills ? <p>No skills added yet.</p> 
                         : skillsError ? <ErrorMessage message={skillsError.message} /> 
+                        : skills?.length === 0 || !skills ? null
                         : skills?.map(skill=>
                             <DetailedSkillCard 
                             key={skill.id}
@@ -190,8 +276,8 @@ export default function Goal(){
                     </div>
                     {
                         loadingProjects? <p>Loading projects...</p> 
-                        : projects?.length === 0 || !projects ? <p>No projects added yet.</p>
                         : projectsError ? <ErrorMessage message={projectsError.message} /> 
+                        : projects?.length === 0 || !projects ? null
                         : projects?.map(project =>{
                             return <ProjectCard 
                             key={project.id} 
