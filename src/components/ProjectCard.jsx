@@ -1,30 +1,14 @@
 import { Trash } from "lucide-react"
 import { Link } from "react-router-dom"
 import useProject from "../hooks/useProject";
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
-
+import { deleteWarning } from "../services/function"
 export default function ProjectCard ({ project, goalId }) {
 
     const { deleteProjectData } = useProject(goalId, project.id);
-    const MySwal = withReactContent(Swal);
 
     async function deleteProject(){
-        const result = await MySwal.fire({
-            icon: "warning",
-            title: "Are you sure?",
-            text: "You will not be able to recover this project!",
-            showCancelButton: true,
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "No, cancel!",
-            customClass: {
-                popup: "alert",
-                title: "alert-title",
-                confirmButton: "confirm-button",
-                cancelButton: "cancel-button",
-            },
-        });
-        if (!result.isConfirmed) return;
+        const result = await deleteWarning("project");
+        if (!result) return;
 
         try{
             await deleteProjectData();

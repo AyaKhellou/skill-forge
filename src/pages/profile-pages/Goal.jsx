@@ -2,17 +2,15 @@ import { Link, useParams } from "react-router-dom"
 import { useState, useEffect } from "react";
 import ProgressBar from "../../components/ProgressBar"
 import Button from "../../components/Button"
-import { ArrowLeft, Check, Pen } from "lucide-react";
+import { ArrowLeft, Check, Pen, X } from "lucide-react";
 import DetailedSkillCard from "../../components/DetailedSkillCard";
 import ProjectCard from "../../components/ProjectCard";
 import useGoal from "../../hooks/useGoal";
 import useSkills from "../../hooks/useSkills";
 import useProjects from "../../hooks/useProjects";
-import {secondsToTime} from "../../services/function";
+import {secondsToTime, emptyInput} from "../../services/function";
 import ErrorMessage from "../../components/ErrorMessage";
 
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
 
 export default function Goal(){
     const { goalId } = useParams();
@@ -37,9 +35,6 @@ export default function Goal(){
     const [projectDesc, setProjectDesc] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
     const totalSeconds = skills?.reduce((total, skill) => total + (skill.totalTimeStudied ?? 0) , 0);
-
-    const MySwal = withReactContent(Swal);
-    
 
     const completedSkills =
     skills?.filter(skill => skill.status).length ?? 0;
@@ -80,17 +75,7 @@ export default function Goal(){
     async function addNewSkill(){
         const skillName = newSkillName.trim();
         if(!skillName) {
-            MySwal.fire({
-                icon: "warning",
-                title: <p>Oops!</p>,
-                text: "Please enter a skill name.",
-                confirmButtonText: "Okay",
-                customClass: {
-                    popup: "alert",
-                    title: "alert-title",
-                    confirmButton: "alert-button",
-                },
-            });
+            await emptyInput("Please enter a skill name.");
             return;
         }
         try{
@@ -115,17 +100,7 @@ export default function Goal(){
         const trimmedProjectName = projectName.trim();
         const trimmedProjectDesc = projectDesc.trim();
         if(!imagePath || !trimmedProjectName || !trimmedProjectDesc){
-            MySwal.fire({
-                icon: "warning",
-                title: <p>Oops!</p>,
-                text: "Please fill out all project fields.",
-                confirmButtonText: "Okay",
-                customClass: {
-                    popup: "alert",
-                    title: "alert-title",
-                    confirmButton: "alert-button",
-                },
-            });
+            await emptyInput("Please fill out all project fields.");
             return;
         }
         try{
@@ -162,13 +137,21 @@ export default function Goal(){
                         </h2>
                     }
                     {
-                        editTitleMode?
-                        <button 
-                        className="cursor-pointer" 
-                        onClick={editTitle}
-                        >
-                            <Check width={17}/>
-                        </button>
+                        editTitleMode ?
+                        <div className="flex gap-2">
+                            <button 
+                            className="cursor-pointer" 
+                            onClick={editTitle}
+                            >
+                                <Check width={17}/>
+                            </button>
+                            <button 
+                            className="cursor-pointer" 
+                            onClick={()=>setEditTitleMode(false)}
+                            >
+                                <X width={17}/>
+                            </button>
+                        </div>
                         :
                         <button 
                         className="cursor-pointer" 

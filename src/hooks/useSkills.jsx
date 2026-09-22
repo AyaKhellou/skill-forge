@@ -31,11 +31,12 @@ export default function useSkills(goalId) {
         return unsubscribe;
     }, [user?.uid, goalId]);
     
-    const id = nanoid();
-    const currentDate = new Date();
-
-
+    
+    
     async function addSkill(newSkillName) {
+        const id = nanoid();
+        const currentDate = new Date();
+        if (!user?.uid || !goalId) return;
         await createSkill(user.uid, goalId, id, {
             id:id,
             name: newSkillName,

@@ -33,9 +33,11 @@ export default function useProjects(goalId) {
 
     }, [user?.uid, goalId]);
 
-    const currentDate = new Date();
-    const id = nanoid();
+
     async function addProject(imagePath, projectName, projectDesc) {
+        if (!user?.uid || !goalId) return;
+        const currentDate = new Date();
+        const id = nanoid();
         const imageUrl =  await uploadImage(imagePath)
         await createProject(user.uid, goalId, id, {
             id:id,

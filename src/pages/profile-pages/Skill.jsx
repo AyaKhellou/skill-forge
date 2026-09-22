@@ -1,67 +1,41 @@
 import { Link, NavLink, Outlet, useParams } from "react-router-dom"
 import { useState, useEffect } from "react";
-import Loader from "../../components/Loader";
-import { ArrowLeft, Check, Pen } from "lucide-react";
+import useSkill from "../../hooks/useSkill";
+import { ArrowLeft, Check, Pen, X } from "lucide-react";
 import { useAuthContext } from "../../AuthContext";
 import ProgressBar from "../../components/ProgressBar";
-import { doc,onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { emptyInput } from "../../services/function";
 
 
 export default function Skill(){
     const { user } = useAuthContext();
-    const[loading, setLoading] = useState(true)
-    const[skillData, setSkillData] = useState(null)
     const { goalId, skillId } = useParams() 
+    const {skillData, loadingSkill, error, updateSkillData } = useSkill(goalId, skillId);
 
     const [skillTitle, setSkillTitle] = useState("")
     const [editTitleMode, setEditTitleMode] = useState(false)
-    
 
     const userId = user.uid;
     
-    const docRef = doc(db,"users", userId, "goals",goalId,"skills",skillId)
-
-    useEffect(()=>{
-        async function fetchData() {
-            onSnapshot(docRef, (doc) => {
-                setSkillData(doc.data())
-            })
-            setLoading(false)
-        }
-        fetchData();
-    },[userId,goalId,skillId])
-
     useEffect(()=>{
         if(skillData?.name !== undefined){
             setSkillTitle(skillData.name)
         }
     },[skillData])
 
-    function editTitle(){
-        console.log("editing...");
-        async function updateSkill(){
+    async function editTitle(){
+        const name = skillTitle.trim();
+        if(name === ""){
+            emptyInput('Skill title cannot be empty');
+            return;
+        }
         try{
-            await updateDoc(docRef, {
-                name: skillTitle
-            });
+            await updateSkillData({ name: skillTitle });
+            setEditTitleMode(false)
         }catch(err){
             console.log(err);
         }
-        }
-        updateSkill()
-        setEditTitleMode(false)
     }
-
-    if(loading){
-        return (
-            <section className="page">
-                <Loader/>
-            </section>
-        )
-    }
-
-    if(!loading){
     return (
         <section className="page flex flex-col gap-3">
             <div 
@@ -89,13 +63,21 @@ export default function Skill(){
                         </h2>
                     }
                     {
-                    editTitleMode?
-                    <button 
-                    className="cursor-pointer" 
-                    onClick={editTitle}
-                    >
-                        <Check width={17}/>
-                    </button>
+                    editTitleMode ?
+                    <div className="flex gap-2">
+                        <button 
+                        className="cursor-pointer" 
+                        onClick={editTitle}
+                        >
+                            <Check width={17}/>
+                        </button>
+                        <button 
+                        className="cursor-pointer" 
+                        onClick={()=>setEditTitleMode(false)}
+                        >
+                            <X width={17}/>
+                        </button>
+                    </div>                    
                     :
                     <button 
                     className="cursor-pointer" 
@@ -117,5 +99,4 @@ export default function Skill(){
             <Outlet context={ {goalId, skillId, userId, skillData} }/>
         </section>
     )
-    }
 }

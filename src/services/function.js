@@ -44,6 +44,7 @@ import withReactContent from 'sweetalert2-react-content'
 
 const MySwal = withReactContent(Swal);
 
+
 export async function deleteWarning(name){
     const result = await MySwal.fire({
         icon: "warning",
@@ -59,5 +60,21 @@ export async function deleteWarning(name){
             cancelButton: "cancel-button",
         },
     });
-    if (!result.isConfirmed) return;
+    return result.isConfirmed;
+}
+
+
+export async function emptyInput(text){
+    const result = await MySwal.fire({
+        icon: "warning",
+        title:"Oops!",
+        text: text,
+        confirmButtonText: "Okay",
+        customClass: {
+            popup: "alert",
+            title: "alert-title",
+            confirmButton: "alert-button",
+        },
+    });
+    return result;
 }

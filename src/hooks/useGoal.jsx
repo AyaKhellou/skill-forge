@@ -6,8 +6,6 @@ export default function useGoal(goalId) {
     const [goalData, setGoalData] = useState(null);
     const [loadingGoal, setLoadingGoal] = useState(true);
     const [error, setError] = useState(null);
-
-
     const { user } = useAuthContext();
 
 

@@ -69,12 +69,13 @@ export function getGoal(userId, goalId , onData, onError) {
     },onError)
 
 }
+
 //update goal
 export async function updateGoal(userId, goalId, dataToUpdate){
     await updateDoc(doc(db, "users", userId, "goals", goalId), dataToUpdate);
 }
 
-// get skills in a goal
+// ------------------- get skills in a goal
 export function getGoalSkills(userId, goalId , onData, onError) {
     return onSnapshot(
         collection(db, "users", userId, "goals", goalId, "skills"), (snapshot) => {
@@ -95,9 +96,20 @@ export async function deleteSkill(userId, goalId, skillId){
     const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId);
     await deleteDoc(docRef);
 }
+//get skill's data
+export function getSkill(userId, goalId, skillId, onData, onError) {
+    return onSnapshot(doc(db, "users", userId, "goals", goalId, "skills", skillId), (doc) => {
+        onData(doc.data());
+    }, onError);
+}
+// update skill
+export async function updateSkill(userId, goalId, skillId, dataToUpdate){
+    await updateDoc(doc(db, "users", userId, "goals", goalId, "skills", skillId), dataToUpdate);
+}
 
-//-------------
-// get projects in a goal
+
+
+//------------- get projects in a goal
 export function getGoalProjects(userId, goalId , onData, onError) {
     const projectsRef = collection(db, "users", userId, "goals", goalId, "projects");
     return onSnapshot(
@@ -120,9 +132,88 @@ export async function deleteProject(userId, goalId, projectId){
     await deleteDoc(docRef);
 }
 
+//milestones in a skill
+export function getSkillMilestones(userId, goalId, skillId, onData, onError) {
+    return onSnapshot(
+        collection(db, "users", userId, "goals", goalId, "skills", skillId, "milestones"), (snapshot) => {
+        const data = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        onData(data);
+    },onError
+    );
+}
+
+export async function createMilestone(userId, goalId, skillId, id, newMilestone) {
+    await setDoc(doc(db, "users", userId, "goals",goalId,"skills",skillId,"milestones",id), newMilestone);
+}
+
+export async function deleteMilestone(userId, goalId, skillId, milestoneId){
+    const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"milestones",milestoneId);
+    await deleteDoc(docRef);
+}
+export async function updateMilestone(userId, goalId, skillId, milestoneId, dataToUpdate){
+    await updateDoc(doc(db, "users", userId, "goals", goalId, "skills", skillId, "milestones", milestoneId), dataToUpdate);
+}
+
+
+//notes
+
+export function getSkillNotes(userId, goalId, skillId, onData, onError) {
+    return onSnapshot(
+        collection(db, "users", userId, "goals", goalId, "skills", skillId, "notes"), (snapshot) => {
+        const data = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        onData(data);
+    },onError
+    );
+}
+
+export async function createNote(userId, goalId, skillId, id, newNote) {
+    await setDoc(doc(db, "users", userId, "goals",goalId,"skills",skillId,"notes",id), newNote);
+}
+
+export async function deleteNote(userId, goalId, skillId, noteId){
+    const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"notes",noteId);
+    await deleteDoc(docRef);
+}
+
+export async function updateNote(userId, goalId, skillId, noteId, dataToUpdate){
+    await updateDoc(doc(db, "users", userId, "goals", goalId, "skills", skillId, "notes", noteId), dataToUpdate);
+}
+
 //useGoal only: get goal data + update goals + delete goal 
 // create useSkills to get goal's skills and add to them  and same  with projects better
 // -------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export async function getUserGoals(id) {
     try{
@@ -148,23 +239,6 @@ export async function createUserData(id,data) {
             console.error(err);
         }
 }
-
-
-
-// export async function createSkill(userId,data,goalId,skillId) {
-//     const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId);
-
-//     try{
-//         await setDoc(docRef, data);
-
-//         console.log("skill created!!!!!!!");
-        
-//     } catch(err){
-//         console.log(err);
-        
-//     }
-// }
-
 
 
 //read user goal
@@ -196,38 +270,6 @@ export async function getUserskills(id,goalId) {
     }
 }
 
-//update skill
-export async function updateSkill(userId, goalId, skillId, dataToUpdate){
-
-const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId);
-try{
-    await updateDoc(docRef, dataToUpdate);
-    console.log("updated!");
-    
-}catch(err){
-    console.log(err);
-}
-}
-
-// export async function updateGoal(userId, goalId, dataToUpdate){
-
-// const docRef = doc(db, "users", userId, "goals",goalId);
-// try{
-//     await updateDoc(docRef, dataToUpdate);
-//     console.log("updated!");
-    
-// }catch(err){
-//     console.log(err);
-// }
-// }
-
-// export async function deleteSkill(userId, goalId, skillId){
-//     try{
-//         await deleteDoc(doc(db, "users", userId, "goals",goalId,"skills",skillId));
-//     }catch(err){
-//         console.log(err);
-//     }
-// }
 
 
 export function logout(){

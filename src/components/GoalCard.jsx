@@ -3,14 +3,11 @@ import useSkills from "../hooks/useSkills"
 import useGoal from "../hooks/useGoal"
 import { Link } from "react-router-dom"
 import { Trash } from "lucide-react"
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
+import { deleteWarning } from "../services/function"
 
 export default function GoalCard({ goalName, goalId }){
     const { skills } = useSkills(goalId);
     const { deleteGoalData } = useGoal(goalId);
-    const MySwal = withReactContent(Swal);
-
 
     const progress  = 
         skills?.length === 0 ?
@@ -18,22 +15,8 @@ export default function GoalCard({ goalName, goalId }){
         Math.round((100 * skills?.filter(skill=> skill.status === true).length) / skills?.length)
 
     async function deleteCurrentGoal(){
-
-        const result = await MySwal.fire({
-            icon: "warning",
-            title: "Are you sure?",
-            text: "You will not be able to recover this goal!",
-            showCancelButton: true,
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "No, cancel!",
-            customClass: {
-                popup: "alert",
-                title: "alert-title",
-                confirmButton: "confirm-button",
-                cancelButton: "cancel-button",
-            },
-        });
-        if (!result.isConfirmed) return;
+        const result = await deleteWarning("goal");
+        if (!result) return;
 
         try {
             await deleteGoalData();

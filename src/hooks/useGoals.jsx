@@ -37,7 +37,6 @@ export default function useGoals() {
         if (!user) {
             throw new Error("User not authenticated");
         }
-
         const goal = {
             id: goalId,
             goalName: title

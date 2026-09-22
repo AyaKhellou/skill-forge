@@ -1,109 +1,82 @@
 import { useState, useEffect } from "react";
+import { emptyInput } from "../../../services/function";
 import Milestone from "../../../components/Milestone";
 import Button from "../../../components/Button";
 import { useOutletContext } from "react-router-dom";
-import { nanoid } from "nanoid";
-import { collection,doc,onSnapshot, setDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../../firebase-config";
+import useMilestones from "../../../hooks/useMilestones";
 import Loader from "../../../components/Loader";
+import useSkill from "../../../hooks/useSkill";
 
 
 export default function Milestones(){
+
     const [updateMode, setUpdateMode] = useState(false)
-    const [milestones, setMilestones] = useState(null)
-    const [loading, setLoading] = useState(true)
     const [newMilestone, setNewMilestone] = useState("")
     
-    let { skillId, goalId, userId } = useOutletContext();
-    const now = new Date();
-    const id = nanoid();
-    
-    useEffect(() => {
-        const milestonesRef = collection(db, "users", userId, "goals", goalId, "skills", skillId, "milestones");
-        onSnapshot(
-            milestonesRef, (snapshot) => {
-            const data = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-        
-            setMilestones(data);
-            setLoading(false);
-        },
-        (error) => {
-            console.error("Error fetching milestones: ", error);
-            setLoading(false);
-        }
-        );
-    }, [userId, goalId, skillId]);
-    
+    let { skillId, goalId } = useOutletContext();
 
-    function addMilestone(){
-        setUpdateMode(true)
-    }
+    
+    const { milestones, loadingMilestones, error, addMilestone, editMilestone, deleteCurrentMilestone } = useMilestones(goalId, skillId);
+    const { updateSkillData } = useSkill(goalId, skillId);
 
-    function saveMilestone(){
-        async function createMilestone() {
-            const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"milestones",id);
-            try{
-                await setDoc(docRef, {
-                    id:id,
-                    name: newMilestone,
-                    status:false,
-                    startedAt: now.toLocaleDateString() 
-                });
-            } catch(err){
-                console.log(err);
-            }
+    async function saveMilestone(){
+        const milestoneName = newMilestone.trim();
+        if(!milestoneName) {
+            await emptyInput("Milestone name cannot be empty");
+            return;
         }
-        createMilestone()
-        setUpdateMode(false)
-        setNewMilestone("")
+        try{
+            await addMilestone(milestoneName);
+            setUpdateMode(false)
+            setNewMilestone("")
+        } catch(err){
+            console.log(err);
+        }
     }
 
     useEffect(()=>{
-        const docRef = doc(db, "users", userId , "goals",goalId,"skills",skillId)
-        const progress = Math.ceil(milestones?.filter(milestone=> milestone.status === true).length * 100 / milestones?.length)
-        async function updateSkill(){
-        try{
-            await updateDoc(docRef, {
-                progress : progress,
-                status: progress === 100 ? true : false,
-                milestonesCount:milestones?.length
-            });
-            
-        }catch(err){
-            console.log(err);
+        const progress = 
+        Math.round(milestones?.filter(milestone=> milestone.status === true).length * 100 / milestones?.length)
+        
+        async function updateProgress(){
+            try{
+                await updateSkillData({
+                    progress : progress,
+                    status: progress === 100 ? true : false,
+                    milestonesCount:milestones?.length
+                })
+            }catch(err){
+                console.log(err);
+            }
         }
-        }
-        updateSkill();
-    },[milestones,goalId,skillId,userId])
+        updateProgress();
+        
+    },[milestones,goalId,skillId])
 
     
-    if(loading){
+    if(loadingMilestones){
         return(
-            <div className="bg-card-background shadow rounded p-section flex flex-col">
+            <div className="bg-card-background shadow rounded p-section flex flex-col items-center justify-center">
                 <Loader/>
             </div>
         )
     }
     return(
         <div className="bg-card-background shadow rounded p-section flex flex-col">
-            <div className="milestones shadow mb-4">
-                {milestones?.length !== 0 && milestones ?
+            <div className="milestones mb-4">
+                {
+                error ? <p>{error}</p> :
+                milestones?.length !== 0 && milestones ?
                 milestones.map((milestone)=>{
                     return <Milestone 
                     key={milestone.id}
-                    checkVal={milestone.status}
-                    milestoneVal={milestone.name}
-                    userId={userId}
-                    goalId={goalId}
-                    skillId={skillId}
-                    milestoneId={milestone.id}
+                    milestone={milestone}
+                    onEdit={editMilestone}
+                    onDelete={deleteCurrentMilestone}
                     />
                 })
                 :
-                <p>new milestones!</p>
+                <p>No milestones!</p>
                 }
             </div>
             {updateMode &&
@@ -115,12 +88,12 @@ export default function Milestones(){
             }
             {updateMode ?
                 <Button 
-                classes="self-end"
+                classes="self-end mt-3"
                 onClick={saveMilestone}>save milestone</Button>
                 :
                 <Button 
                 classes="self-end"
-                onClick={addMilestone}>add milestone</Button>
+                onClick={()=>setUpdateMode(true)}>add milestone</Button>
             }
         </div>
     )

@@ -3,31 +3,15 @@ import ProgressBar from "./ProgressBar"
 import useSkill from "../hooks/useSkill";
 import { Trash } from "lucide-react";
 import { secondsToTime } from "../services/function";
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
+import { deleteWarning } from "../services/function"
 
 export default function DetailedSkillCard({skill, goalId}){
 
     const { deleteSkillData } = useSkill(goalId, skill.id);
-    const MySwal = withReactContent(Swal);
-
     async function deleteSkill(){
 
-        const result = await MySwal.fire({
-            icon: "warning",
-            title: "Are you sure?",
-            text: "You will not be able to recover this skill!",
-            showCancelButton: true,
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "No, cancel!",
-            customClass: {
-                popup: "alert",
-                title: "alert-title",
-                confirmButton: "confirm-button",
-                cancelButton: "cancel-button",
-            },
-        });
-        if (!result.isConfirmed) return;
+        const result = await deleteWarning("skill");
+        if (!result) return;
         try{
             await deleteSkillData();
         }catch(err){
