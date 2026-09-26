@@ -131,6 +131,17 @@ export async function deleteProject(userId, goalId, projectId){
     const docRef = doc(db, "users", userId, "goals",goalId,"projects",projectId);
     await deleteDoc(docRef);
 }
+//get project's data
+export function getProject(userId, goalId, projectId, onData, onError) {
+    return onSnapshot(doc(db, "users", userId, "goals", goalId, "projects", projectId), (doc) => {
+        onData(doc.data());
+    }, onError);
+}
+//update project
+export async function updateProject(userId, goalId, projectId, dataToUpdate){
+    await updateDoc(doc(db, "users", userId, "goals", goalId, "projects", projectId), dataToUpdate);
+}
+
 
 //milestones in a skill
 export function getSkillMilestones(userId, goalId, skillId, onData, onError) {
@@ -185,6 +196,57 @@ export async function updateNote(userId, goalId, skillId, noteId, dataToUpdate){
     await updateDoc(doc(db, "users", userId, "goals", goalId, "skills", skillId, "notes", noteId), dataToUpdate);
 }
 
+//resources
+export function getSkillResources(userId, goalId, skillId, onData, onError) {
+    return onSnapshot(
+        collection(db, "users", userId, "goals", goalId, "skills", skillId, "resources"), (snapshot) => {
+        const data = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        onData(data);
+    },onError
+    );
+}
+
+export async function createResource(userId, goalId, skillId, id, newResource) {
+    await setDoc(doc(db, "users", userId, "goals",goalId,"skills",skillId,"resources",id), newResource);
+}
+
+export async function deleteResource(userId, goalId, skillId, resourceId){
+    const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"resources",resourceId);
+    await deleteDoc(docRef);
+}
+
+export async function updateResource(userId, goalId, skillId, resourceId, dataToUpdate){
+    await updateDoc(doc(db, "users", userId, "goals", goalId, "skills", skillId, "resources", resourceId), dataToUpdate);
+}
+
+//studySessions
+export function getSkillStudySessions(userId, goalId, skillId, onData, onError) {
+    return onSnapshot(
+        collection(db, "users", userId, "goals", goalId, "skills", skillId, "studySessions"), (snapshot) => {
+        const data = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        onData(data);
+    },onError
+    );
+}
+
+export async function createStudySession(userId, goalId, skillId, id, newStudySession) {
+    await setDoc(doc(db, "users", userId, "goals",goalId,"skills",skillId,"studySessions",id), newStudySession);
+}
+
+export async function deleteStudySession(userId, goalId, skillId, studySessionId){
+    const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"studySessions",studySessionId);
+    await deleteDoc(docRef);
+}
+
+export async function updateStudySession(userId, goalId, skillId, studySessionId, dataToUpdate){
+    await updateDoc(doc(db, "users", userId, "goals", goalId, "skills", skillId, "studySessions", studySessionId), dataToUpdate);
+}
 //useGoal only: get goal data + update goals + delete goal 
 // create useSkills to get goal's skills and add to them  and same  with projects better
 // -------------------------------------------------------------------------------------------------

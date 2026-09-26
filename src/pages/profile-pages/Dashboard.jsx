@@ -1,15 +1,15 @@
 import { ArrowRight, Play} from "lucide-react";
+import Loader from "../../components/Loader";
 import { useAuthContext } from "../../AuthContext";
+import useSummary from "../../hooks/useSummary";
 import Button from "../../components/Button";
-import { getUserGoals } from "../../services/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import Stats from "../../components/Stats";
 import ProgressBar from "../../components/ProgressBar";
 import StudySessionCard from "../../components/StudySessionCard";
-import { useEffect, useState } from "react";
-import { collection, doc, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebase-config";
 import {secondsToTime} from "../../services/function";
+import useGoals from "../../hooks/useGoals";
+import useAllSkills from "../../hooks/useAllSkills";
 
 export default function Dashboard() {
   const dateNow = new Date();
@@ -17,67 +17,23 @@ export default function Dashboard() {
   const { user } = useAuthContext();
   const displayName = user?.displayName?.split(" ")[0] || "there";
   const navigate = useNavigate()
-  const [goals,setGoals] = useState(null);
-  const [skills,setSkills] = useState(null)
-  
-  
-      useEffect(()=>{
-          if(!user) return;
-          if(user){
-              getUserGoals(user.uid)
-              .then(goals => setGoals(goals))
-          }
-      },[user])
 
-      const activeGoals =  goals?.filter(goal=> goal.status === "pending")
+  const {  goals, loadingGoals, error: goalsError } = useGoals();
+  const { allSkills: skills, loadingAllSkills, error: skillsError } = useAllSkills();
 
-      const skillsByGoal = {}
-      
-          useEffect(()=>{
-              if(goals){
-                  goals.map(goal=>{
-                      onSnapshot(
-                          collection(db, "users", user.uid, "goals", goal.id, "skills"), (snapshot) => {
-                          const skillsList = snapshot.docs.map((doc) => ({
-                              id: doc.id,
-                              goalId:goal.id,
-                              ...doc.data()
-                          }));
-                          skillsByGoal[goal.id] = skillsList;
-                          setSkills(Object.values(skillsByGoal).flat())
-                      },
-                      (error) => {
-                          console.error("Error fetching skills: ", error);
-                      }
-                      );
-                  })
-              }
-          },[goals,user])
+  const activeGoals =  goals?.filter(goal=> goal.status === "pending")
 
-          const [recentStudySession, setRecentStudySession] = useState(null)
-          useEffect(()=>{
-            async function fetchData() {
-              onSnapshot(doc(db,"users", user.uid), (doc) => {
-                  setRecentStudySession(doc.data().recentStudySession)
-              })
-              }
-            fetchData();
-          },[goals,user])
+  const { recentStudySession, loadingRecentStudySession, recentStudyError } = useSummary();
 
-          const TotalStudySessionsTime = skills?.filter(skill=> skill.totalTimeStudied)
-          .map(skill=>skill.totalTimeStudied)
-          .reduce((total,time) => total + time,0)
+  const TotalStudySessionsTime = skills?.filter(skill=> skill.totalTimeStudied)
+  .map(skill=>skill.totalTimeStudied)
+  .reduce((total,time) => total + time,0)
 
-          const totalStudySessions = skills?.filter(skill=> skill.studySessionsCount)
-          .map(skill=> skill.studySessionsCount)
-          .reduce((total,count)=> total + count,0)
+  const totalStudySessions = skills?.filter(skill=> skill.studySessionsCount)
+  .map(skill=> skill.studySessionsCount)
+  .reduce((total,count)=> total + count,0)
 
-          const sortedSkills = skills?.filter(skill=> skill.LastStudied).sort((a,b)=> new Date(b.LastStudied) - new Date(a.LastStudied))
-          // console.log();
-          
-          
-      
-
+  const sortedSkills = skills?.filter(skill=> skill.LastStudied).sort((a,b)=> new Date(b.LastStudied) - new Date(a.LastStudied))
 
   function greeting() {
     if (currentHour > 5 && currentHour < 13) {
@@ -89,32 +45,46 @@ export default function Dashboard() {
     }
   }
 
+  if(loadingGoals || loadingAllSkills || loadingRecentStudySession) {
+    return(
+      <div className="page flex flex-col gap-3 items-center">
+        <Loader/>
+      </div>
+    )
+  }
+  if(recentStudyError || goalsError || skillsError) {
+    return(
+      <div className="page flex flex-col gap-3 items-center">
+        <p>Error loading data.</p>
+      </div>
+    )
+  }
   return (
     <section className="page flex flex-col gap-3">
-      <div className="bg-card-background shadow rounded p-4 flex items-end justify-between">
+      <div className="bg-card-background shadow rounded p-4 flex flex-col items-start justify-between">
         <div>
           <p className="detail">{dateNow.toDateString()}</p>
           <h3>{greeting()}</h3>
           <p>Ready to keep building?</p>
         </div>
-          <Button primary={true} classes="flex items-center gap-1" onClick={()=>navigate('/user/studysessions')}>
+          <Button primary={true} classes="flex items-center gap-1 mt-3 self-end" onClick={()=>navigate('/user/studysessions')}>
             <Play className="text-inherit!"/>
             Start a study session
           </Button>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="flex flex-wrap gap-3">
         <Stats title="Active goals" value={activeGoals?.length}/>
         <Stats title="Study time" value={secondsToTime(TotalStudySessionsTime)}/>
         <Stats title="Study sessions" value={totalStudySessions}/>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex gap-3 flex-wrap">
         {
           sortedSkills &&
-          sortedSkills.slice(0,1).map(skill=>(
-            <div className="bg-card-background shadow rounded p-4">
+          sortedSkills.slice(0,2).map(skill=>(
+            <div key={skill.id} className="bg-card-background shadow rounded p-4 flex-1 min-w-72">
               <h4>{skill.name}</h4>
-              <p className="detail">Goal: {goals?.find(goal=> goal.id === skill.goalId).goalName}</p>
-              <ProgressBar progress={40}/>
+              <p className="detail">Goal: {goals?.find(goal => goal.id === skill.goalId)?.goalName}</p>
+              <ProgressBar progress={skill.progress}/>
               <Button onClick={()=> navigate(`/user/goals/${skill.goalId}/skills/${skill.id}`)} classes="ml-auto w-full">
                 Continue Forging 
                 {`>>`}
@@ -122,16 +92,6 @@ export default function Dashboard() {
             </div>
           ))
         }
-
-        <div className="bg-card-background shadow rounded p-4">
-          <h4>Korean vocabulary</h4>
-          <p className="detail">Goal: learn korean</p>
-          <ProgressBar progress={18}/>
-          <Button classes="ml-auto w-full">
-            Continue Forging 
-            {`>>`}
-          </Button>
-        </div>
       </div>
       {/* <div className=""> */}
         <div className="flex items-center justify-between">
@@ -141,21 +101,10 @@ export default function Dashboard() {
             <ArrowRight width={17}/>
           </Link>
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          {
-            activeGoals?.length <= 3 ?
-            activeGoals?.map(goal=>{
+        <div className="flex gap-3 flex-wrap">
+          {activeGoals?.slice(0,3).map(goal=>{
               return (
-                <div className="bg-card-background shadow rounded p-4">
-                  <p>{goal?.goalName}</p>
-                  <ProgressBar progress={goal?.progress}/>
-                </div>
-              )
-            })
-            :
-            activeGoals?.slice(0,3).map(goal=>{
-              return (
-                <div className="bg-card-background shadow rounded p-4">
+                <div key={goal.id} className="bg-card-background flex-1 min-w-55 shadow rounded p-4">
                   <p>{goal?.goalName}</p>
                   <ProgressBar progress={goal?.progress}/>
                 </div>

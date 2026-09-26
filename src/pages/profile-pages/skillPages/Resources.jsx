@@ -1,62 +1,42 @@
 import { useState, useEffect,useRef } from "react";
 import Button from "../../../components/Button";
 import { useOutletContext } from "react-router-dom";
-import { nanoid } from "nanoid";
-import { collection,doc,onSnapshot, setDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../../firebase-config";
+import useResources from "../../../hooks/useResources";
 import Loader from "../../../components/Loader";
 import Resource from "../../../components/Resource";
-
+import DropDown from "../../../components/DropDown";
+import useSkill from "../../../hooks/useSkill";
+import ErrorMessage from "../../../components/ErrorMessage";
+import { emptyInput } from "../../../services/function";
 
 export default function Resources(){
+
     const [updateMode, setUpdateMode] = useState(null)
-    const [resources, setResources] = useState(null)
-    const [loading, setLoading] = useState(false)
     const [resourceCategory, setResourceCategory] = useState("video")
     const [resourceLink, setResourceLink] = useState("")
     const [resourceName, setResourceName] = useState("")
     const inputRef = useRef(null);
-
-    const { skillId, goalId, userId } = useOutletContext();
-    const id = nanoid();
-
-    useEffect(() => {
-        const resourcesRef = collection(db, "users", userId, "goals", goalId, "skills", skillId, "resources");
-        onSnapshot(
-            resourcesRef, (snapshot) => {
-            const data = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            setResources(data);
-        },
-        (error) => {
-            console.error("Error fetching resources: ", error);
-            setLoading(false);
-        }
-        );
-    }, [userId, goalId, skillId]);
-
     
-    function addResource(){
-        async function createResource() {
-            const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"resources",id);
-            try{
-                await setDoc(docRef, {
-                    id:id,
-                    name: resourceName,
-                    link: resourceLink,
-                    category: resourceCategory,
-                });
-                console.log("resource created!!!!!!!");
-            } catch(err){
-                console.log(err);
-            }
+    const { skillId, goalId } = useOutletContext();
+
+    const { resources, loadingResources, error, createNewResource, editResource, deleteCurrentResource } = useResources(goalId, skillId);
+    const { updateSkillData } = useSkill(goalId, skillId);
+
+    async function addResource(){
+        const trimmedResourceName = resourceName.trim();
+        const trimmedResourceLink = resourceLink.trim();
+        if(!trimmedResourceName || !trimmedResourceLink) {
+            await emptyInput("Please fill in all fields");
+            return;
         }
-        createResource()
-        setResourceCategory("")
-        setResourceLink("")
-        setResourceName("")
+        try{
+            await createNewResource(trimmedResourceName, trimmedResourceLink, resourceCategory)
+            setResourceCategory("video")
+            setResourceLink("")
+            setResourceName("")
+        } catch(err){
+            console.log(err);
+        }
     }
 
     useEffect(()=>{
@@ -64,50 +44,59 @@ export default function Resources(){
             setResourceCategory(updateMode.category)
             setResourceLink(updateMode.link)
             setResourceName(updateMode.name)
-            console.log("update mode is true");
             inputRef.current?.focus();
         }
     }, [updateMode])
 
-    function updateResource(){
-        const docRef = doc(db, "users", userId, "goals",goalId,"skills",skillId,"resources",updateMode.resourceId);
+    async function updateResource(){
+        const trimmedResourceName = resourceName.trim();
+        const trimmedResourceLink = resourceLink.trim();
+        if(!trimmedResourceName || !trimmedResourceLink) {
+            await emptyInput("Please fill in all fields");
+            return;
+        }
+        try{
+            await editResource(updateMode.resourceId, {
+                name: trimmedResourceName,
+                link: trimmedResourceLink,
+                category: resourceCategory
+            });
+            cancelUpdate();
+        }catch(err){
+            console.log(err);
+        }
+    }
 
-        async function editData(){
+    useEffect(()=>{
+        async function updateSkill(){
             try{
-                await updateDoc(docRef, {
-                    name: resourceName,
-                    link: resourceLink,
-                    category: resourceCategory
-                });
+                await updateSkillData({resourcesCount:resources.length});
             }catch(err){
                 console.log(err);
             }
         }
-        editData()
-        setResourceName("")
-        setResourceLink("")
-        setResourceCategory("")
-        setUpdateMode(null)
+        updateSkill();
+    },[resources])
+
+    function cancelUpdate(){
+        setUpdateMode(null);
+        setResourceName("");
+        setResourceLink("");
+        setResourceCategory("video");
     }
 
-    useEffect(()=>{
-        const docRef = doc(db, "users", userId , "goals",goalId,"skills",skillId)
-        async function updateSkill(){
-        try{
-            await updateDoc(docRef, {
-                resourcesCount:resources.length
-            });
-            
-        }catch(err){
-            console.log(err);
+    function handleSubmit(e){
+        e.preventDefault();
+        if(updateMode){
+            updateResource();
+        }else{
+            addResource();
         }
-        }
-        updateSkill();
-    },[resources,goalId,skillId,userId])
+    }
 
-    if(loading){
+    if(loadingResources){
         return(
-            <div className="bg-card-background shadow rounded p-section flex flex-col">
+            <div className="bg-card-background shadow rounded p-section flex flex-col items-center">
                 <Loader/>
             </div>
         )
@@ -115,29 +104,38 @@ export default function Resources(){
     return(
         <div className="bg-card-background shadow rounded p-section flex flex-col">
             <div className="mb-4">
-                {resources?.length !== 0 && resources ?
+                {
+                error?
+                <ErrorMessage message={error.message} />
+                :
+                resources?.length === 0 ?
+                <p>no resources!</p> :
                 resources.map((resource)=>{
                     return <Resource 
                     key={resource.id} 
                     resource={resource}
-                    skillId={skillId}
-                    goalId={goalId}
-                    userId={userId}
                     setUpdateMode={setUpdateMode}
+                    onDelete={deleteCurrentResource}
                     />
                 })
-                :
-                <p>no resources!</p>
+                
                 }
-                <div className="bg-background shadow p-section m-3 rounded flex flex-col  gap-3">
-                    <select 
+                <form 
+                className="bg-background shadow p-section m-3 rounded flex flex-col  gap-3"
+                onSubmit={handleSubmit}>
+                    <DropDown
+                    options={[
+                        { id: "video", name: "video" },
+                        { id: "article", name: "article" },
+                        { id: "tutorial", name: "tutorial" },
+                        { id: "document", name: "document" },
+                        { id: "book", name: "book" },
+                        { id: "website", name: "website" },
+                        { id: "other", name: "other" }
+                    ]}
                     value={resourceCategory}
-                    onChange={(e)=> setResourceCategory(e.target.value)}
-                    className="bg-peach text-sm text-text font-figtree px-2 py-1 rounded self-start">
-                        <option value="video">video</option>
-                        <option value="article">article</option>
-                        <option value="tutorial">tutorial</option>
-                    </select>
+                    onChange={(option) => setResourceCategory(option.id)}
+                    />
                     <input 
                     ref={inputRef}
                     type="text" 
@@ -154,14 +152,19 @@ export default function Resources(){
                     onChange={(e)=> setResourceLink(e.target.value)}
                     />
                     {updateMode ?
-                    <Button 
-                    onClick={updateResource}
-                    classes="self-end">update resource</Button>
+                    <div className="flex gap-2 self-end">
+                        <Button 
+                        onClick={updateResource}
+                        >update resource</Button>
+                        <Button 
+                        onClick={cancelUpdate}
+                        >cancel</Button>
+                    </div>
                     :
                     <Button 
                     onClick={addResource}
                     classes="self-end">add resource</Button>}
-                </div>
+                </form>
             </div>
         </div>
     )

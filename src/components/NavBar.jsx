@@ -13,6 +13,17 @@ export default function NavBar({ isVisible, setIsVisible }){
 
     const [menuIsHidden,setMenuIsHidden] = useState(true)
     
+    useEffect(() => {
+        function handleClickOutside(e) {
+            if (!e.target.closest(".profile-menu") && !e.target.closest(".menu")) {
+                setMenuIsHidden(true);
+            }
+        }
+        document.documentElement.addEventListener("click", handleClickOutside);
+        return () => {
+            document.documentElement.removeEventListener("click", handleClickOutside);
+        };
+    }, []);
     
     const { user, loading } = useAuthContext();
     
@@ -33,13 +44,8 @@ export default function NavBar({ isVisible, setIsVisible }){
             }else{
                 setIsVisible(true);
             }
-            console.log('current width: ' ,currentWidth);
-            console.log('window width: ' ,windowWidth);
-            
         }
-
         window.addEventListener("resize", handleResize);
-
         return () => {
             window.removeEventListener("resize", handleResize);
         };
@@ -67,7 +73,7 @@ export default function NavBar({ isVisible, setIsVisible }){
             <div className="flex items-end gap-2 fixed bottom-6 left-4">
                 <button 
                 onClick={()=>setMenuIsHidden(prev=> !prev)}
-                className="rounded-[50%] w-10 h-10 flex items-center justify-center bg-accent cursor-pointer overflow-hidden"
+                className="profile-menu rounded-[50%] w-10 h-10 flex items-center justify-center bg-accent cursor-pointer overflow-hidden"
                 >
                 {   loadingProfile ?
                     <Loader className="w-4 h-4"/>
@@ -82,7 +88,7 @@ export default function NavBar({ isVisible, setIsVisible }){
                 </button>
                 {
                     !menuIsHidden &&
-                    <div className="flex flex-col gap-2 bg-card-background p-3 rounded shadow">
+                    <div className="menu flex flex-col gap-2 bg-card-background p-3 rounded shadow">
                         <p className="detail flex items-center gap-1 px-2 py-1">
                             <User width={17} className="text-accent!"/>
                             {loading ? "---" : user.displayName}

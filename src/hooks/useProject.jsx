@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuthContext } from "../AuthContext";
-import { deleteProject } from "../services/firestore";
+import { deleteProject, getProject, updateProject } from "../services/firestore";
 
 export default function useProject(goalId, projectId) {
 
@@ -8,38 +8,42 @@ export default function useProject(goalId, projectId) {
     const [loadingProject, setLoadingProject] = useState(true);
     const [error, setError] = useState(null);
 
-
     const { user } = useAuthContext();
 
+    useEffect(() => {
+        if (!user?.uid || !goalId || !projectId) {
+            setProjectData(null);
+            setLoadingProject(false);
+            setError(null);
+            return;
+        }
 
-    // useEffect(() => {
-    //     if (!user?.uid || !skillId) {
-    //         setSkillData(null);
-    //         setLoadingSkill(false);
-    //         setError(null);
-    //         return;
-    //     }
-    //     setLoadingSkill(true);
-    //     setError(null);
-    //     const unsubscribe = getSkill(user.uid, skillId, (data) => {
-    //         setSkillData(data);
-    //         setLoadingSkill(false);
-    //     }, (error) => {
-    //         setError(error);
-    //         setLoadingSkill(false);
-    //     })
-    //     return unsubscribe;
-    // }, [user?.uid, skillId]);
-
-    // async function updateSkillData(dataToUpdate) {
-    //     if (!user?.uid || !skillId) return;
-    //     await updateSkill(user.uid, skillId, dataToUpdate);
-    // }
+        setLoadingProject(true);
+        setError(null);
+        const unsubscribe = getProject(user.uid, goalId, projectId, (data) => {
+            setProjectData(data);
+            setLoadingProject(false);
+        }, (error) => {
+            setError(error);
+            setLoadingProject(false);
+        });
+        return unsubscribe;
+    }, [user?.uid, goalId, projectId]);
+    
 
     async function deleteProjectData() {
         if (!user?.uid || !goalId || !projectId ) return;
         await deleteProject(user.uid, goalId, projectId);
     }
 
-    return { /*projectData, loadingProject, error, updateProjectData,*/ deleteProjectData };
+    async function updateProjectData(dataToUpdate) {
+        const currentDate = new Date();
+        if (!user?.uid || !goalId || !projectId ) return;
+        await updateProject(user.uid, goalId, projectId, {
+            ...dataToUpdate,
+            latestUpdate:currentDate.toLocaleString()
+        });
+    }
+
+    return { projectData, loadingProject, error, deleteProjectData, updateProjectData };
 }

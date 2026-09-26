@@ -14,6 +14,8 @@
 
     --text-normal: 1.15rem;
     --spacing-section: 1.5rem;
+
+    --color-carcoal: #1F2937;
     --color-blush: #fbebec;
     --color-peach : #fcd3a7;
     --color-lilac : #e7d4f9;
@@ -106,10 +108,10 @@ nav a{
 }
 
 .cancel-button{
-    @apply bg-red text-background px-4 py-2 rounded-md font-bold cursor-pointer border-2 border-red hover:bg-background hover:text-red hover:border-red transition-all duration-300 shadow;
+    @apply bg-[#49af29] text-background px-4 py-2 rounded-md font-bold cursor-pointer border-2 border-[#49af29] hover:bg-background hover:text-lime-600 hover:border-lime-600 transition-all duration-300 shadow;
 }
 .confirm-button{
-    @apply bg-green-400 text-background px-4 py-2 rounded-md font-bold cursor-pointer border-2 border-green-400 hover:bg-background hover:text-green-400 hover:border-green-400 transition-all duration-300 shadow;
+    @apply bg-red text-background px-4 py-2 rounded-md font-bold cursor-pointer border-2 border-red hover:bg-background hover:text-red hover:border-red transition-all duration-300 shadow;
 }
 /* Loader style */
 

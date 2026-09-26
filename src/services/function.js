@@ -78,3 +78,42 @@ export async function emptyInput(text){
     });
     return result;
 }
+
+//-----------------------------
+export function getUpdateTime(date) {
+        
+    const seconds = Math.abs(new Date() - new Date(date)) / 1000;
+
+    if (seconds < 60) {
+        const value = Math.round(seconds);
+        return `${value} second${value === 1 ? "" : "s"}`;
+    }
+
+    if (seconds < 3600) {
+        const value = Math.round(seconds / 60);
+        return `${value} minute${value === 1 ? "" : "s"}`;
+    }
+
+    if (seconds < 86400) {
+        const value = Math.round(seconds / 3600);
+        return `${value} hour${value === 1 ? "" : "s"}`;
+    }
+
+    if (seconds < 604800) {
+        const value = Math.round(seconds / 86400);
+        return `${value} day${value === 1 ? "" : "s"}`;
+    }
+
+    if (seconds < 2592000) {
+        const value = Math.round(seconds / 604800);
+        return `${value} week${value === 1 ? "" : "s"}`;
+    }
+
+    if (seconds < 31536000) {
+        const value = Math.round(seconds / 2592000);
+        return `${value} month${value === 1 ? "" : "s"}`;
+    }
+
+    const value = Math.round(seconds / 31536000);
+    return `${value} year${value === 1 ? "" : "s"}`;
+}

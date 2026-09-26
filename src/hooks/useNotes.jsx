@@ -44,7 +44,7 @@ export default function useNotes(goalId, skillId) {
             createdAt: now.toLocaleDateString(),
         });
     }
-
+    
     async function editNote(noteId, dataToUpdate){
         if (!user?.uid || !goalId || !skillId || !noteId) return;
         await updateNote(user.uid, goalId, skillId, noteId, dataToUpdate);

@@ -96,7 +96,7 @@ export default function Skill(){
                 <NavLink to="resources" className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Resources</NavLink>
                 <NavLink to="study-sessions" className={ ({isActive}) => isActive? "text-accent! font-bold": ""}>Study Sessions</NavLink>
             </div>
-            <Outlet context={ {goalId, skillId, userId, skillData} }/>
+            <Outlet context={ {goalId, skillId , lastStudied: skillData?.lastStudied} }/>
         </section>
     )
 }

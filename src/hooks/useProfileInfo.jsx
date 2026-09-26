@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAuthContext } from "../AuthContext";
-import { getProfileInfo } from "../services/firestore";
+import { getProfileInfo, updateProfileInfo } from "../services/firestore";
+import { deleteUser, updateProfile } from "firebase/auth";
+
 
 export default function useProfileInfo() {
 
@@ -13,26 +15,38 @@ export default function useProfileInfo() {
     
 
     useEffect(()=>{
-            if(!user?.uid){
-                setProfileInfo(null);
-                setLoadingProfile(false);
-                return;
-            }
-            
-            setLoadingProfile(true);
-            setError(null);
+        if(!user?.uid){
+            setProfileInfo(null);
+            setLoadingProfile(false);
+            return;
+        }
+        
+        setLoadingProfile(true);
+        setError(null);
 
-            const unsubscribe = getProfileInfo(user.uid , (data)=>{
-                setProfileInfo(data)
-                setLoadingProfile(false);
-            }, (error)=>{
-                setError(error);
-                setLoadingProfile(false);
-            })
+        const unsubscribe = getProfileInfo(user.uid , (data)=>{
+            setProfileInfo(data)
+            setLoadingProfile(false);
+        }, (error)=>{
+            setError(error);
+            setLoadingProfile(false);
+        })
 
-            return () => unsubscribe();
-            
-        },[user?.uid])
-    
-    return { profileInfo, error, loadingProfile };
+        return () => unsubscribe();
+        
+    },[user?.uid])
+
+    async function updateUserDetails(dataToUpdate) {
+        await updateProfileInfo(user.uid, dataToUpdate);
+    }
+
+    async function updateUserProfile(dataToUpdate) {
+        await updateProfile(user, dataToUpdate);
+    }
+
+    async function deleteUserAccount() {
+        await deleteUser(user);
+    }
+        
+    return { profileInfo, error, loadingProfile, updateUserDetails, updateUserProfile, deleteUserAccount };
 }
