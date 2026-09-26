@@ -1,8 +1,38 @@
 import Button from "../../components/Button"
 import { Link } from "react-router-dom"
-import { auth } from "../../firebase-config"
+import { useAuthContext } from "../../AuthContext"
+import Loader from "../../components/Loader";
+import ErrorMessage from "../../components/ErrorMessage";
 
 export default function LandingPage(){
+    const { user,loading, error } = useAuthContext();
+    
+    if(loading){
+        return(
+            <div className="flex flex-col items-center justify-center text-center gap-6 h-[calc(100vh-5rem)] p-section">
+                <Loader/>
+            </div>
+        )
+    }
+
+    if(error){
+        return(
+            <div className="flex flex-col items-center justify-center text-center gap-6 h-[calc(100vh-5rem)] p-section">
+                <ErrorMessage error={error}/>
+            </div>
+        )
+    }
+
+    if(!user){
+        return(
+            <div className="flex flex-col items-center justify-center text-center gap-6 h-[calc(100vh-5rem)] p-section">
+                <ErrorMessage error="Please log in to continue."/>
+                <Link to="login">
+                    <Button primary={false}>Sign in</Button>
+                </Link>
+            </div>
+        )
+    }
     return(
         <section 
         className="flex flex-col items-center justify-center text-center gap-6 h-[calc(100vh-5rem)] p-section">

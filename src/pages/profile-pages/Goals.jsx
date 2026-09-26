@@ -7,11 +7,7 @@ import { useNavigate } from "react-router-dom";
 import goalIconLightMode from "../../assets/goal-light-mode.png"
 import goalIconDarkMode from "../../assets/goal-dark-mode.png"
 import LoadingData from "../../components/LoadingData";
-
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
-
-
+import { emptyInput } from "../../services/function";
 
 export default function Goals(){
     const [title, setTitle] = useState("");
@@ -20,29 +16,13 @@ export default function Goals(){
 
     const navigate = useNavigate();
 
-    const MySwal = withReactContent(Swal);
-
     const { mode } = useTheme();
 
 
     async function saveGoal(e){
         e.preventDefault();
         if(title.trim() === ""){
-
-            MySwal.fire({
-            icon: "warning",
-            title: <p>Oops!</p>,
-            text: "Please enter a goal first.",
-            confirmButtonText: "Okay",
-            customClass: {
-                popup: "alert",
-                title: "alert-title",
-                confirmButton: "alert-button",
-            },
-        });
-        
-        return;
-
+            emptyInput('Please enter a goal first.')
         }else{
             try{
                 const goal = await addGoal(title.trim());           

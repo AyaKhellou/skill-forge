@@ -2,20 +2,18 @@ import { Link, NavLink, Outlet, useParams } from "react-router-dom"
 import { useState, useEffect } from "react";
 import useSkill from "../../hooks/useSkill";
 import { ArrowLeft, Check, Pen, X } from "lucide-react";
-import { useAuthContext } from "../../AuthContext";
 import ProgressBar from "../../components/ProgressBar";
 import { emptyInput } from "../../services/function";
+import Loader from "../../components/Loader";
+import ErrorMessage from "../../components/ErrorMessage";
 
 
 export default function Skill(){
-    const { user } = useAuthContext();
     const { goalId, skillId } = useParams() 
     const {skillData, loadingSkill, error, updateSkillData } = useSkill(goalId, skillId);
 
     const [skillTitle, setSkillTitle] = useState("")
     const [editTitleMode, setEditTitleMode] = useState(false)
-
-    const userId = user.uid;
     
     useEffect(()=>{
         if(skillData?.name !== undefined){
@@ -36,6 +34,32 @@ export default function Skill(){
             console.log(err);
         }
     }
+
+    if (loadingSkill) {
+            return (
+                <section className="page flex items-center justify-center">
+                    <Loader />
+                </section>
+            );
+        }
+    
+        if (error) {
+            return (
+                <section className="page flex items-center justify-center">
+                    <ErrorMessage
+                        message={`Unable to load your settings. ${error.message || "Please try again."}`}
+                    />
+                </section>
+            );
+        }
+    
+        if (!skillData) {
+            return (
+                <section className="page flex items-center justify-center">
+                    <ErrorMessage message="Skill information is unavailable." />
+                </section>
+            );
+        }
     return (
         <section className="page flex flex-col gap-3">
             <div 

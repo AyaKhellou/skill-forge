@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import useProject from "../../hooks/useProject";
 import Loader from "../../components/Loader";
+import ErrorMessage from "../../components/ErrorMessage";
 import Description from "../../components/projectPage/Description";
 import Reflection from "../../components/projectPage/Reflection";
 import RefInput from "../../components/projectPage/RefInput";
@@ -31,27 +32,31 @@ export default function Project() {
         }
     }
     
-    if(loadingProject){
-        return (
-            <section className="page">
-                <Loader/>
-            </section>
-        )
-    }
-    if(error){
-        return (
-            <section className="page">
-                <p>Error loading project data.</p>
-            </section>
-        )
-    }
-    if(!projectData){
-        return (
-            <section className="page">
-                <p>Project not found.</p>
-            </section>
-        )
-    }
+    if (loadingProject) {
+            return (
+                <section className="page flex items-center justify-center">
+                    <Loader />
+                </section>
+            );
+        }
+    
+        if (error) {
+            return (
+                <section className="page flex items-center justify-center">
+                    <ErrorMessage
+                        message={`Unable to load your settings. ${error.message || "Please try again."}`}
+                    />
+                </section>
+            );
+        }
+    
+        if (!projectData) {
+            return (
+                <section className="page flex items-center justify-center">
+                    <ErrorMessage message="Project information is unavailable." />
+                </section>
+            );
+        }
     return (
         <section className="page flex flex-col gap-3">
             <ProjectHeader

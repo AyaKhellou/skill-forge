@@ -148,7 +148,7 @@ export default function ProjectHeader({
                         {
                             techStack ?
                             techStack.map(skill=>{
-                                return <span key={skill} className="tag bg-sage">{skill}</span>
+                                return <span key={skill} className="tag text-carcoal! bg-sage">{skill}</span>
                             }) :
                             null
                         }

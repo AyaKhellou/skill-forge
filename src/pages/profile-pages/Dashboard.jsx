@@ -67,7 +67,8 @@ export default function Dashboard() {
           <h3>{greeting()}</h3>
           <p>Ready to keep building?</p>
         </div>
-          <Button primary={true} classes="flex items-center gap-1 mt-3 self-end" onClick={()=>navigate('/user/studysessions')}>
+          <Button primary={true} classes="flex items-center gap-1 mt-3 self-end" 
+          onClick={()=>navigate('/user/study-sessions')}>
             <Play className="text-inherit!"/>
             Start a study session
           </Button>

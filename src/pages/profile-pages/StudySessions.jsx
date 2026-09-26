@@ -4,6 +4,7 @@ import DropDown from "../../components/DropDown";
 import { nanoid } from "nanoid";
 import Button from '../../components/Button'
 import Loader from '../../components/Loader'
+import ErrorMessage from "../../components/ErrorMessage";
 import { useSearchParams } from "react-router-dom";
 import StudySessionCard from "../../components/StudySessionCard";
 import useSkill from "../../hooks/useSkill";
@@ -143,13 +144,10 @@ export default function StudySkills(){
             </div>
         );
     }
-    if (!selectedOption) {
-        return null;
-    }
     if (skillsError) {
         return (
             <div className="page">
-                <p>{skillsError.message}</p>
+                <ErrorMessage message={`Unable to load skills. ${skillsError.message || "Please try again."}`} />
             </div>
         );
     }
