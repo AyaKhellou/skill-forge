@@ -22,17 +22,6 @@ export default function LandingPage(){
             </div>
         )
     }
-
-    if(!user){
-        return(
-            <div className="flex flex-col items-center justify-center text-center gap-6 h-[calc(100vh-5rem)] p-section">
-                <ErrorMessage error="Please log in to continue."/>
-                <Link to="login">
-                    <Button primary={false}>Sign in</Button>
-                </Link>
-            </div>
-        )
-    }
     return(
         <section 
         className="flex flex-col items-center justify-center text-center gap-6 h-[calc(100vh-5rem)] p-section">
