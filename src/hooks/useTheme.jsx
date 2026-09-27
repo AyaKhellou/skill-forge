@@ -27,6 +27,7 @@ export default function useTheme() {
             if(!user?.uid) return;
     
             const newMode = mode === 'dark mode' ? 'light mode' : 'dark mode';
+            setMode(newMode);
 
             try{
                 await updateProfileInfo(user?.uid, { mode: newMode });
@@ -34,5 +35,6 @@ export default function useTheme() {
                 console.log(err);
             }
         }
-        return { mode, switchMode };
+
+    return { mode, switchMode };
 }

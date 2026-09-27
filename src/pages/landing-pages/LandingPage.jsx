@@ -5,7 +5,7 @@ import Loader from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
 
 export default function LandingPage(){
-    const { user,loading, error } = useAuthContext();
+    const { loading, error } = useAuthContext();
     
     if(loading){
         return(
