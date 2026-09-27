@@ -80,7 +80,7 @@ export default function StudySkills(){
     function startTimer() {
         intervalRef.current = setInterval(() => {
             setSeconds(prev => prev + 1);
-        }, 1);
+        }, 1000);
         setTimerOn(true);
     }
     
