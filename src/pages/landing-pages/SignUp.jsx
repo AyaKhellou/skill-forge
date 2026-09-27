@@ -44,7 +44,7 @@ export default function SignUp(){
 
     return(
         <section className="flex flex-row items-center justify-center p-section">
-            <form className="signup-form bg-background flex flex-col items-center gap-4 w-[60%] p-section rounded-lg shadow-lg">
+            <form className="signup-form bg-background flex flex-col items-center gap-4 w-[90%] sm:w-[60%] p-section rounded-lg shadow-lg">
                 <h2>Create 
                     <span className="text-accent"> Your Account</span>
                 </h2>

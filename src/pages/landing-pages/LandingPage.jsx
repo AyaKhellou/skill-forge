@@ -26,7 +26,7 @@ export default function LandingPage(){
         <section 
         className="flex flex-col items-center justify-center text-center gap-6 h-[calc(100vh-5rem)] p-section">
             <h1 
-            className="font-archivo text-text text-6xl leading-18 font-bold">
+            className="font-archivo text-text text-4xl sm:text-6xl leading-12 sm:leading-18 font-bold">
                 Forge Your Skills,
                 <br/>
                 <span className="text-accent">Master</span> Anything.</h1>

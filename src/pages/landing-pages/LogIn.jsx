@@ -26,7 +26,7 @@ export default function LogIn(){
 
     return(
         <section className="flex flex-row items-center justify-center p-section">
-            <form className="signup-form bg-background flex flex-col items-center gap-4 w-[60%] p-section rounded-lg shadow-lg">
+            <form className="signup-form bg-background flex flex-col items-center gap-4 w-[90%] sm:w-[60%] p-section rounded-lg shadow-lg">
                 <h2>Sign In</h2>
                 <FormGroup label="Email" type="email" name="userEmail" id="user-email" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} />
                 <FormGroup label="Password" type="password" name="userPassword" id="user-password" value={userPassword} onChange={(e) => setUserPassword(e.target.value)} />

@@ -49,7 +49,7 @@ body{
     @apply bg-background ;
 }
 .description{
-    @apply text-detail text-xl leading-10;
+    @apply text-detail text-base sm:text-xl leading-7 sm:leading-10;
 }
 p,span,li,a,input{
     @apply font-figtree text-text;
