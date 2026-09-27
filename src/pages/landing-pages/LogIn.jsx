@@ -1,7 +1,7 @@
 import FormGroup from "../../components/FormGroup"
 import Button from "../../components/Button"
 import googleIcon from "../../assets/icons8-google-96.png"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useState } from "react"
 import { auth } from "../../firebase-config"
 import { signInWithEmailAndPassword } from "firebase/auth"
@@ -11,7 +11,6 @@ import ErrorMessage from "../../components/ErrorMessage"
 export default function LogIn(){
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
-    const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState(null);
 
     function loginUser(e){

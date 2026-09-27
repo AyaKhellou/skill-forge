@@ -25,7 +25,7 @@ export default function Resource({ resource, setUpdateMode, onDelete }){
             <p>{resource.name}</p>
             <div className="flex items-center ml-auto gap-2">
                 <button type="button" className="cursor-pointer" onClick={updateResource}>
-                    <Pen width={17} height={17} className="text-sage!"/>
+                    <Pen width={17} height={17} className="text-text"/>
                 </button>
                 <a 
                 href={resource.link} 

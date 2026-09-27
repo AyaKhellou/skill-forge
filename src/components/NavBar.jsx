@@ -1,119 +1,129 @@
-import Logo from "./Logo"
-import { Link, NavLink } from "react-router-dom"
-import { useAuthContext } from "../AuthContext";
-import { logout } from "../services/firestore"
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
-import { useEffect, useState } from "react";
-import useTheme from "../hooks/useTheme";
+import { useAuthContext } from "../AuthContext";
+import { logout } from "../services/firestore";
 import useProfileInfo from "../hooks/useProfileInfo";
-import errorIcon from "../assets/error.png"
-import Loader from "./Loader";
+import useTheme from "../hooks/useTheme";
+import Logo from "./Logo";
 
-export default function NavBar({ isVisible, setIsVisible }){
-
-    const [menuIsHidden,setMenuIsHidden] = useState(true)
-    
+export default function NavBar({ isVisible, setIsVisible }) {
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const profileMenuRef = useRef(null);
     useEffect(() => {
-        function handleClickOutside(e) {
-            if (!e.target.closest(".profile-menu") && !e.target.closest(".menu")) {
-                setMenuIsHidden(true);
+        function handlePointerDown(event) {
+            if (!profileMenuRef.current?.contains(event.target)) {
+                setIsProfileMenuOpen(false);
             }
         }
-        document.documentElement.addEventListener("click", handleClickOutside);
+        function handleKeyDown(event) {
+            if (event.key === "Escape") {
+                setIsProfileMenuOpen(false);
+            }
+        }
+
+        document.addEventListener("pointerdown", handlePointerDown);
+        document.addEventListener("keydown", handleKeyDown);
         return () => {
-            document.documentElement.removeEventListener("click", handleClickOutside);
+            document.removeEventListener("pointerdown", handlePointerDown);
+            document.removeEventListener("keydown", handleKeyDown);
         };
     }, []);
-    
+
     const { user, loading } = useAuthContext();
-    
-    const { profileInfo, error, loadingProfile } = useProfileInfo();    
-
+    const { profileInfo, error: profileError, loadingProfile } = useProfileInfo();
     const { mode, switchMode } = useTheme();
+    const activeStyles = "nav-link border border-primary!";
 
-    const activeStyles = "nav-link border border-primary!" ;
-
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    
     useEffect(() => {
         function handleResize() {
-            const currentWidth = window.innerWidth;
-            setWindowWidth(currentWidth);
-            if(currentWidth <= 767){
-                setIsVisible(false);
-            }else{
-                setIsVisible(true);
-            }
+            setIsVisible(window.innerWidth > 767);
         }
+
+        handleResize();
         window.addEventListener("resize", handleResize);
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, []);
+    }, [setIsVisible]);
 
-    return(
-        <aside 
-        className={`
-        flex flex-col bg-background border-r border-border-color h-screen w-62.5 pt-section px-4 z-10 max-md:fixed max-sm:w-52
-        ${!isVisible ? 'hidden' : ''}
-        `}>
+    const displayName = profileInfo?.name || user?.displayName || "Your account";
+    const initials = user?.displayName?.trim()?.charAt(0)?.toUpperCase();
+    const avatarUrl = !profileError ? profileInfo?.pfp : null;
+
+    return (
+        <aside
+            className={`flex flex-col bg-background border-r border-border-color h-screen w-62.5 pt-section px-4 z-10 max-md:fixed max-sm:w-52 ${!isVisible ? "hidden" : ""}`}
+        >
             <Logo />
             <nav className="w-full flex flex-col gap-2 mt-6">
-                <NavLink end
-                to="/user"
-                className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
-                >Dashboard</NavLink>
-                <NavLink to="goals"
-                className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
-                >Goals</NavLink>
-                <NavLink to="study-sessions"
-                className={ ({isActive})=>isActive ? activeStyles : "nav-link"}
-                >Study Sessions</NavLink>
+                <NavLink end to="/user" className={({ isActive }) => isActive ? activeStyles : "nav-link"}>
+                    Dashboard
+                </NavLink>
+                <NavLink to="goals" className={({ isActive }) => isActive ? activeStyles : "nav-link"}>
+                    Goals
+                </NavLink>
+                <NavLink to="study-sessions" className={({ isActive }) => isActive ? activeStyles : "nav-link"}>
+                    Study Sessions
+                </NavLink>
             </nav>
-            <div className="flex items-end gap-2 fixed bottom-6 left-4">
-                <button 
-                onClick={()=>setMenuIsHidden(prev=> !prev)}
-                className="profile-menu rounded-[50%] w-10 h-10 flex items-center justify-center bg-accent cursor-pointer overflow-hidden"
+            <div ref={profileMenuRef} className="fixed bottom-6 left-4 flex items-end gap-2">
+                <button
+                    type="button"
+                    onClick={() => setIsProfileMenuOpen((isOpen) => !isOpen)}
+                    className="rounded-[50%] w-10 h-10 flex items-center justify-center bg-accent cursor-pointer overflow-hidden"
+                    aria-label={`${isProfileMenuOpen ? "Close" : "Open"} profile menu`}
+                    aria-haspopup="menu"
+                    aria-expanded={isProfileMenuOpen}
                 >
-                {   loadingProfile ?
-                    <Loader className="w-4 h-4"/>
-                    :
-                    profileInfo?.pfp === undefined || profileInfo?.pfp === null || error ?
-                    <div className="bg-accent">
-                        <img src={errorIcon} width={25} alt="error" />
-                    </div>
-                    :
-                    <img src={profileInfo?.pfp} alt="user pfp" />
-                }
+                    {avatarUrl ? (
+                        <img src={avatarUrl} alt={`${displayName}'s profile`} className="w-full h-full object-cover" />
+                    ) : (
+                        <span aria-hidden="true" className="text-background">
+                            {initials || <User size={20} />}
+                        </span>
+                    )}
                 </button>
-                {
-                    !menuIsHidden &&
-                    <div className="menu flex flex-col gap-2 bg-card-background p-3 rounded shadow">
+                {isProfileMenuOpen && (
+                    <div className="flex flex-col gap-2 bg-card-background p-3 rounded shadow" role="menu">
                         <p className="detail flex items-center gap-1 px-2 py-1">
-                            <User width={17} className="text-accent!"/>
-                            {loading ? "---" : user.displayName}
+                            <User width={17} className="text-accent!" />
+                            {loading || loadingProfile ? "Loading profile..." : profileError ? "Profile unavailable" : displayName}
                         </p>
-                        <button className="text-accent! hover:bg-background px-2 py-1 rounded font-bold font-figtree cursor-pointer flex items-center gap-1" onClick={logout} >
-                            <LogOut width={17} className="text-accent!"/>
-                            <p className="detail">Log Out</p>
+                        <button
+                            type="button"
+                            className="text-accent! hover:bg-background px-2 py-1 rounded font-bold font-figtree cursor-pointer flex items-center gap-1"
+                            onClick={logout}
+                            role="menuitem"
+                        >
+                            <LogOut width={17} className="text-accent!" />
+                            <span className="detail">Log Out</span>
                         </button>
-                        <button className="detail hover:bg-background px-2 py-1 rounded flex gap-1 items-center cursor-pointer" 
-                        onClick={switchMode}>
-                            {mode === 'dark mode' ? 
-                                <Sun width={17} className=" text-accent!"/>
-                                :
-                                <Moon width={17} className=" text-accent!"/>
-                            }
-                            switch mode
+                        <button
+                            type="button"
+                            className="detail hover:bg-background px-2 py-1 rounded flex gap-1 items-center cursor-pointer"
+                            onClick={switchMode}
+                            role="menuitem"
+                        >
+                            {mode === "dark mode" ? (
+                                <Sun width={17} className="text-accent!" />
+                            ) : (
+                                <Moon width={17} className="text-accent!" />
+                            )}
+                            Switch mode
                         </button>
-                        <Link to="/user/settings"
-                        className="cursor-pointer flex items-center gap-1 hover:bg-background px-2 py-1 rounded" >
-                            <Settings width={17} className="text-accent!"/>
-                            <p className="detail">Settings</p>
+                        <Link
+                            to="/user/settings"
+                            className="cursor-pointer flex items-center gap-1 hover:bg-background px-2 py-1 rounded"
+                            role="menuitem"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                            <Settings width={17} className="text-accent!" />
+                            <span className="detail">Settings</span>
                         </Link>
                     </div>
-                }
+                )}
             </div>
         </aside>
-    )
+    );
 }

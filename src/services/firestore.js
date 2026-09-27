@@ -254,84 +254,10 @@ export async function updateStudySession(userId, goalId, skillId, studySessionId
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export async function getUserGoals(id) {
-    try{
-    const querySnapshot = await getDocs(collection(db,"users", id, "goals"));
-
-    return querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-}));
-
-    }catch(err){
-        console.log(err);
-    }
-}
-
 // create the user's collection
-export async function createUserData(id,data) {
-    try {
-        await setDoc(doc(db, "users", id), data);
-
-        console.log("Document created!");
-        } catch (err) {
-            console.error(err);
-        }
+export async function createUserProfile(id,data) {
+    await setDoc(doc(db, "users", id), data); 
 }
-
-
-//read user goal
-
-export async function getUserGoal(id,goalId) {
-
-    const docRef = doc(db,"users", id, "goals",goalId);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-        return docSnap.data();
-    } else {
-        console.log("No such document!");
-    }
-}
-
-// read user skills
-export async function getUserskills(id,goalId) {
-    try{
-    const querySnapshot = await getDocs(collection(db,"users", id, "goals",goalId,"skills"));
-
-    return querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-}));
-
-    }catch(err){
-        console.log(err);
-    }
-}
-
 
 
 export function logout(){

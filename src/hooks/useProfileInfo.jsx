@@ -11,6 +11,7 @@ export default function useProfileInfo() {
     const [profileInfo, setProfileInfo] = useState(null);
     const [error, setError] = useState(null);
     const [loadingProfile, setLoadingProfile] = useState(true);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     
 
@@ -37,16 +38,26 @@ export default function useProfileInfo() {
     },[user?.uid])
 
     async function updateUserDetails(dataToUpdate) {
-        await updateProfileInfo(user.uid, dataToUpdate);
+        setIsUpdating(true);
+        try {
+            await updateProfileInfo(user?.uid, dataToUpdate);
+        } finally {
+            setIsUpdating(false);
+        }
     }
 
     async function updateUserProfile(dataToUpdate) {
-        await updateProfile(user, dataToUpdate);
+        setIsUpdating(true);
+        try {
+            await updateProfile(user, dataToUpdate);
+        } finally {
+            setIsUpdating(false);
+        }
     }
 
     async function deleteUserAccount() {
         await deleteUser(user);
     }
         
-    return { profileInfo, error, loadingProfile, updateUserDetails, updateUserProfile, deleteUserAccount };
+    return { profileInfo, error, loadingProfile, updateUserDetails, updateUserProfile, isUpdating, deleteUserAccount };
 }

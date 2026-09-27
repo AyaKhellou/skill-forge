@@ -11,6 +11,8 @@ import useSkill from "../../hooks/useSkill";
 import useAllSkills from "../../hooks/useAllSkills";
 import useStudySessions from "../../hooks/useStudySessions";
 import { emptyInput } from "../../services/function";
+import { Link } from "react-router-dom";
+import LoadingData from "../../components/LoadingData";
 
 export default function StudySkills(){
     const [searchParams, setSearchParams] = useSearchParams()
@@ -78,7 +80,7 @@ export default function StudySkills(){
     function startTimer() {
         intervalRef.current = setInterval(() => {
             setSeconds(prev => prev + 1);
-        }, 1000);
+        }, 1);
         setTimerOn(true);
     }
     
@@ -106,7 +108,7 @@ export default function StudySkills(){
             try{
                 await createNewStudySession(sessionTitle, timeToSeconds(time), todaysGoal)
                 await updateSkillData({
-                    LastStudied: currentDate.toLocaleDateString(),
+                    lastStudied: currentDate.toLocaleDateString(),
                     studySessionsCount: studySessions.length + 1
                 })
                 await updateUserDetails({
@@ -135,21 +137,14 @@ export default function StudySkills(){
         <div className="page flex flex-col gap-3 items-center">
             <Loader />
         </div>
-    );
-    }
-    if (!skills.length) {
-        return (
-            <div className="page flex flex-col gap-3 items-center">
-                <p>No skills available yet.</p>
-            </div>
-        );
+    )
     }
     if (skillsError) {
         return (
             <div className="page">
                 <ErrorMessage message={`Unable to load skills. ${skillsError.message || "Please try again."}`} />
             </div>
-        );
+        )
     }
     return(
         <section className="page flex flex-col gap-3">
@@ -168,11 +163,20 @@ export default function StudySkills(){
                     </div>
                     <div className="flex flex-col gap-2 flex-1 min-w-38">
                         <label className="detail" htmlFor="skill">Skill</label>
-                        <DropDown
-                        id="skill"
-                        options={skills}
-                        value={selectedOption?.name}
-                        onChange={setSelectedOption} />
+                        {
+                            !skills.length ? 
+                            <div>
+                                <p>No skills available yet.</p>
+                                <Link to="/user/goals" 
+                                className="text-blue-500! underline">Please add a skill first</Link>
+                            </div> 
+                            :
+                            <DropDown
+                            id="skill"
+                            options={skills}
+                            value={selectedOption?.name}
+                            onChange={setSelectedOption} />
+                        }
                     </div>
                     <div className="flex flex-col gap-2 flex-1 min-w-38">
                         <label htmlFor="session-goal" className="detail">Today's goal</label>
@@ -199,10 +203,12 @@ export default function StudySkills(){
                 <div className="flex flex-col gap-3">
                     {
                         studySessionsError ?
-                        <p className="text-red-500">{studySessionsError.message}</p> :
+                        <ErrorMessage message={`Unable to load study sessions. ${studySessionsError.message || "Please try again."}`} /> :
                         loadingStudySessions ?
-                        <p>Loading...</p> :
-                        studySessions?.map(session=>(
+                        <LoadingData message="Loading study sessions..." /> :
+                        studySessions.length === 0 ?
+                        <p className="detail">{selectedOption ? "No study sessions for this skill yet." : "Select a skill to view study sessions."}</p> :
+                        studySessions.map(session=>(
                             <StudySessionCard key={session.id} session={session}/>
                         ))
                     }

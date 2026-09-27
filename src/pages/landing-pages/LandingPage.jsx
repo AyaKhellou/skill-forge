@@ -31,8 +31,7 @@ export default function LandingPage(){
                 <br/>
                 <span className="text-accent">Master</span> Anything.</h1>
             <p className="description">
-                StudyForge gives you visual skill maps, daily tracking, and AI coaching so every practice session
-                <br/> moves you forward. No more wasted effort — just measurable growth.
+                SkillForge is a personal learning workspace that helps you turn ambitious goals into structured skills, track your progress, and build consistent learning habits.
             </p>
             <div className="buttons flex items-center gap-4">
                 <Link to="signup">

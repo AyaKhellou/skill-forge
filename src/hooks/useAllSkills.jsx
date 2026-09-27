@@ -10,13 +10,23 @@ export default function useAllSkills() {
     const [error, setError] = useState(null);
 
     const { user } = useAuthContext();
-    const { goals } = useGoals();
-    const skillsByGoal = {};
+    const { goals, loadingGoals } = useGoals();
+    
 
+    
     useEffect(()=>{
-        if (!goals || !user) return;
+        if (!user || loadingGoals) return;
+        
+        if(!goals || goals.length === 0) {
+            setAllSkills([]);
+            setLoadingAllSkills(false);
+            return;
+        }
+        
         setLoadingAllSkills(true);
-
+        setError(null);
+        
+        const skillsByGoal = {};
         const unsubscribes = goals.map(goal=>{
             return onSnapshot(
                 collection(db, "users", user.uid, "goals", goal.id, "skills"), (snapshot) => {
@@ -32,6 +42,7 @@ export default function useAllSkills() {
             (error) => {
                 console.error("Error fetching skills: ", error);
                 setError(error);
+                setLoadingAllSkills(false)
             }
             );
         })

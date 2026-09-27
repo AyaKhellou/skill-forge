@@ -4,7 +4,7 @@ import { useAuthContext } from "../AuthContext";
 import { createGoal, getGoals } from "../services/firestore";
 
 export default function useGoals() {
-    const [goals, setGoals] = useState(null);
+    const [goals, setGoals] = useState([]);
     const [loadingGoals, setLoadingGoals] = useState(true);
     const [error, setError] = useState(null);
 

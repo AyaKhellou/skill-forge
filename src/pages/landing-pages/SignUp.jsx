@@ -1,14 +1,15 @@
 import FormGroup from "../../components/FormGroup"
 import Button from "../../components/Button"
 import googleIcon from "../../assets/icons8-google-96.png"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useState } from "react"
 import { auth } from "../../firebase-config"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { signInGoogle } from "../../services/signInGoogle"
 import ErrorMessage from "../../components/ErrorMessage"
 import { updateProfile } from "firebase/auth";
-import { createUserData } from "../../services/firestore"
+import { createUserProfile } from "../../services/firestore"
+
 
 
 export default function SignUp(){
@@ -16,32 +17,30 @@ export default function SignUp(){
     const [userName, setUserName] = useState("");
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
-    const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState(null);
 
-    function createUser(e){
+    async function createUser(e){
         e.preventDefault();
+        setErrorMessage(null);
+        
         createUserWithEmailAndPassword(auth, userEmail, userPassword)
-        .then((userCredential) => {
+        .then(async (userCredential)=>{
             const user = userCredential.user;
-            updateProfile(auth.currentUser, {
+            await updateProfile(user, {
                 displayName: userName,
-            }).then(() => {
-            }).catch((error) => {
-            });
-            createUserData(user.uid,{
+            })
+            await createUserProfile(user.uid,{
                 name : user.displayName,
                 email: user.email,
                 pfp: user.photoURL,
                 createdAt: user.reloadUserInfo.createdAt
-            });
+            })
         })
         .catch((error) => {
-            setErrorMessage(error.code.slice(error.code.indexOf("/") + 1));
+            console.error(error);
+            // setErrorMessage(error.code.slice(error.code.indexOf("/") + 1));
         });
     }
-
-    
 
     return(
         <section className="flex flex-row items-center justify-center p-section">

@@ -1,7 +1,6 @@
 import './index.css'
 import { Routes, Route } from "react-router-dom"
 import LandingPage from "./pages/landing-pages/LandingPage"
-import AuthRequired from "./layouts/ProtectedRoute"
 
 import Dashboard from "./pages/profile-pages/Dashboard"
 import Goals from "./pages/profile-pages/Goals"
