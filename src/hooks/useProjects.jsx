@@ -8,6 +8,7 @@ export default function useProjects(goalId) {
     const [projects, setProjects] = useState(null);
     const [loadingProjects, setLoadingProjects] = useState(true);
     const [error, setError] = useState(null);
+    const [addingProject, setAddingProject] = useState(false);
 
 
     const { user } = useAuthContext();
@@ -36,17 +37,20 @@ export default function useProjects(goalId) {
 
     async function addProject(imagePath, projectName, projectDesc) {
         if (!user?.uid || !goalId) return;
+        setAddingProject(true);
         const currentDate = new Date();
         const id = nanoid();
         const imageUrl =  await uploadImage(imagePath)
-        await createProject(user.uid, goalId, id, {
+        createProject(user.uid, goalId, id, {
             id:id,
             imageUrl:imageUrl,
             name: projectName,
             briefDescription:projectDesc,
             createdAt:currentDate.toLocaleDateString(),
+        }).then(() => {
+            setAddingProject(false);
         });
     }
 
-    return { projects, loadingProjects, error, addProject };
+    return { projects, loadingProjects, error, addProject, addingProject };
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { emptyInput } from "../../../services/function";
 import Milestone from "../../../components/Milestone";
 import Button from "../../../components/Button";
@@ -36,7 +36,7 @@ export default function Milestones(){
 
     useEffect(()=>{
         const progress = 
-        Math.round(milestones?.filter(milestone=> milestone.status === true).length * 100 / milestones?.length)
+        Math.round(milestones?.filter(milestone=> milestone.status === true).length * 100 / milestones?.length) || 0;
         
         async function updateProgress(){
             try{
@@ -52,6 +52,23 @@ export default function Milestones(){
         updateProgress();
         
     },[milestones,goalId,skillId])
+
+    const inputRef = useRef(null);
+
+    useEffect(()=>{
+        if(updateMode){
+            inputRef.current?.focus();
+        }
+    },[updateMode])
+
+    function handleSubmit(e){
+        e.preventDefault();
+        if(updateMode){
+            saveMilestone();
+        }else{
+            setUpdateMode(true);
+        }
+    }
 
     
     if(loadingMilestones){
@@ -79,22 +96,26 @@ export default function Milestones(){
                 <p>No milestones!</p>
                 }
             </div>
-            {updateMode &&
+            <form className="flex flex-col gap-3"
+            onSubmit={handleSubmit}>
+                {updateMode &&
                 <input 
+                ref={inputRef}
                 className="bg-background border-b border-accent flex items-center gap-3 p-5"
                 onChange={(e)=> setNewMilestone(e.target.value)}
                 value={newMilestone}
                 />
-            }
-            {updateMode ?
-                <Button 
-                classes="self-end mt-3"
-                onClick={saveMilestone}>save milestone</Button>
-                :
-                <Button 
-                classes="self-end"
-                onClick={()=>setUpdateMode(true)}>add milestone</Button>
-            }
+                }
+                {updateMode ?
+                    <Button 
+                    classes="self-end mt-3"
+                    onClick={saveMilestone}>save milestone</Button>
+                    :
+                    <Button 
+                    classes="self-end"
+                    onClick={()=>setUpdateMode(true)}>add milestone</Button>
+                }
+            </form>
         </div>
     )
 }

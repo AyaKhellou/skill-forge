@@ -94,6 +94,7 @@ export default function Goals(){
                                 key={goal.id}
                                 goalId={goal.id}
                                 goalName={goal.goalName} 
+                                progress={goal.progress}
                                 />
                             )
                         })

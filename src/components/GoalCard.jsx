@@ -5,14 +5,10 @@ import { Link } from "react-router-dom"
 import { Trash } from "lucide-react"
 import { deleteWarning } from "../services/function"
 
-export default function GoalCard({ goalName, goalId }){
+export default function GoalCard({ goalName, goalId, progress }){
     const { skills } = useSkills(goalId);
     const { deleteGoalData } = useGoal(goalId);
 
-    const progress  = 
-        skills?.length === 0 ?
-        0:
-        Math.round((100 * skills?.filter(skill=> skill.status === true).length) / skills?.length)
 
     async function deleteCurrentGoal(){
         const result = await deleteWarning("goal");

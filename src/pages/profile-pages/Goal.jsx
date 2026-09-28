@@ -16,7 +16,7 @@ export default function Goal(){
     const { goalId } = useParams();
     const { goalData, loadingGoal, error: goalError, updateGoalData } = useGoal(goalId);
     const { skills, loadingSkills, error: skillsError, addSkill } = useSkills(goalId);
-    const { projects, loadingProjects, error: projectsError, addProject } = useProjects(goalId);
+    const { projects, loadingProjects, error: projectsError, addProject, addingProject } = useProjects(goalId);
     
     //goal states
     const [editTitleMode, setEditTitleMode] = useState(false);
@@ -36,13 +36,8 @@ export default function Goal(){
     const [imagePreview, setImagePreview] = useState(null);
     const totalSeconds = skills?.reduce((total, skill) => total + (skill.totalTimeStudied ?? 0) , 0);
 
-    const completedSkills =
-    skills?.filter(skill => skill.status).length ?? 0;
-
-    const progress =
-    skills?.length
-        ? Math.round((completedSkills / skills.length) * 100)
-        : 0;
+    const progress = 
+    Math.round(skills?.map(skill => skill.progress).reduce((sum, progress) => sum + progress, 0) / skills?.length) || 0;
 
         useEffect(()=>{
             async function updateProgress() {
@@ -174,7 +169,9 @@ export default function Goal(){
             </div>
             <div className="rounded flex flex-col bg-card-background shadow p-section">
                 <h3 className="text-2xl font-bold mb-4 text-text">skills</h3>
-                <form className="bg-background rounded my-2 p-3 shadow flex flex-col sm:flex-row items-center justify-between gap-3">
+                <form 
+                className="bg-background rounded my-2 p-3 shadow flex flex-col sm:flex-row items-center justify-between gap-3"
+                onSubmit={e => { e.preventDefault(); addNewSkill(); }}>
                     <input 
                     type="text" 
                     name="skillName" 
@@ -251,10 +248,16 @@ export default function Goal(){
                             className="text-sm text-detail outline-none "
                             value={projectDesc}
                             onChange={(e)=> setProjectDesc(e.target.value)} />
-
-                            <Button onClick={addNewProject} primary={false} classes="ml-auto p-1!">
-                                <Check/>
-                            </Button>
+                            {
+                                addingProject ? 
+                                <Button disabled primary={false} classes="ml-auto p-1!">
+                                    creating...
+                                </Button>
+                                :
+                                <Button onClick={addNewProject} primary={false} classes="ml-auto p-1!">
+                                    <Check/>
+                                </Button>
+                            }
                         </div>
                     </div>
                     {
